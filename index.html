@@ -893,10 +893,6 @@
             document.body.className = currentTheme;
             localStorage.setItem('todo_theme', currentTheme);
             updateThemeIcon();
-            
-            // Show theme change message
-            const themeName = currentTheme === 'dark-theme' ? 'Dark Mode' : 'Ocean Breeze';
-            showMessage(`Switched to ${themeName} theme! 🎨`, 'success');
         }
 
         function updateThemeIcon() {
