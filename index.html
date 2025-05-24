@@ -16,15 +16,26 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            color: #333;
             -webkit-touch-callout: none;
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
             overflow-x: hidden;
+            transition: all 0.3s ease;
+        }
+
+        /* Ocean Breeze Theme (Default) */
+        body.ocean-theme {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            color: #333;
+        }
+
+        /* Dark Mode Theme */
+        body.dark-theme {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: #ecf0f1;
         }
 
         .container {
@@ -43,19 +54,39 @@
         }
 
         .login-card {
-            background: white;
             padding: 2rem;
             border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 400px;
+            transition: all 0.3s ease;
+        }
+
+        /* Ocean Theme Login */
+        .ocean-theme .login-card {
+            background: white;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .ocean-theme .login-card h1 {
+            color: #44a08d;
+        }
+
+        /* Dark Theme Login */
+        .dark-theme .login-card {
+            background: rgba(52, 73, 93, 0.95);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(236, 240, 241, 0.1);
+        }
+
+        .dark-theme .login-card h1 {
+            color: #4ecdc4;
         }
 
         .login-card h1 {
             text-align: center;
             margin-bottom: 2rem;
-            color: #667eea;
             font-size: 2rem;
+            transition: color 0.3s ease;
         }
 
         .form-group {
@@ -66,13 +97,60 @@
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        /* Ocean Theme Forms */
+        .ocean-theme .form-group label {
             color: #333;
+        }
+
+        .ocean-theme .form-group input {
+            background: white;
+            border: 2px solid #e1e5e9;
+            color: #333;
+        }
+
+        .ocean-theme .form-group input:focus {
+            border-color: #4ecdc4;
+            box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
+        }
+
+        .ocean-theme .login-btn {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+        }
+
+        .ocean-theme .login-btn:hover {
+            box-shadow: 0 10px 20px rgba(78, 205, 196, 0.3);
+        }
+
+        /* Dark Theme Forms */
+        .dark-theme .form-group label {
+            color: #ecf0f1;
+        }
+
+        .dark-theme .form-group input {
+            background: rgba(44, 62, 80, 0.8);
+            border: 2px solid rgba(236, 240, 241, 0.2);
+            color: #ecf0f1;
+        }
+
+        .dark-theme .form-group input:focus {
+            border-color: #4ecdc4;
+            box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.2);
+        }
+
+        .dark-theme .login-btn {
+            background: linear-gradient(45deg, #4ecdc4, #3498db);
+        }
+
+        .dark-theme .login-btn:hover {
+            box-shadow: 0 10px 20px rgba(78, 205, 196, 0.4);
         }
 
         .form-group input {
             width: 100%;
             padding: 15px;
-            border: 2px solid #e1e5e9;
             border-radius: 10px;
             font-size: 1rem;
             transition: all 0.3s ease;
@@ -82,15 +160,16 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        .form-group input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        .form-group input::placeholder {
+            transition: color 0.3s ease;
+        }
+
+        .dark-theme .form-group input::placeholder {
+            color: rgba(236, 240, 241, 0.6);
         }
 
         .login-btn {
             width: 100%;
-            background: linear-gradient(45deg, #667eea, #764ba2);
             color: white;
             padding: 15px;
             border: none;
@@ -104,7 +183,6 @@
 
         .login-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
         }
 
         .login-btn:disabled {
@@ -137,7 +215,6 @@
         }
 
         .app-header {
-            background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             padding: 1.5rem;
             border-radius: 20px;
@@ -146,6 +223,16 @@
             justify-content: space-between;
             align-items: center;
             color: white;
+            transition: all 0.3s ease;
+        }
+
+        .ocean-theme .app-header {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .dark-theme .app-header {
+            background: rgba(44, 62, 80, 0.3);
+            border: 1px solid rgba(236, 240, 241, 0.1);
         }
 
         .app-header h1 {
@@ -199,6 +286,47 @@
         .print-btn:active {
             background: rgba(255, 255, 255, 0.4);
             transform: scale(0.95);
+        }
+        /* Theme Switcher */
+        .theme-switcher {
+            margin: 0 10px;
+        }
+
+        .theme-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            min-height: 44px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-tap-highlight-color: rgba(255, 255, 255, 0.3);
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .theme-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .theme-btn:active {
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(0.95);
+        }
+
+        #themeIcon {
+            transition: transform 0.3s ease;
+        }
+
+        .theme-btn:hover #themeIcon {
+            transform: rotate(15deg);
         }
 
         /* Print Styles */
@@ -710,6 +838,11 @@
                 <h1>📝 My Todos</h1>
                 <div class="user-info">
                     <span id="userEmail"></span>
+                    <div class="theme-switcher">
+                        <button id="themeSwitchBtn" class="theme-btn" title="Switch Theme">
+                            <span id="themeIcon">🌙</span>
+                        </button>
+                    </div>
                     <button id="printBtn" class="print-btn" title="Print/Save as PDF">🖨️</button>
                     <button id="logoutBtn" class="logout-btn">Logout</button>
                 </div>
@@ -745,9 +878,37 @@
         let currentUser = null;
         let sessionToken = null;
         let userId = null;
+        // Theme Management
+        let currentTheme = localStorage.getItem('todo_theme') || 'ocean-theme';
+
+        function initializeTheme() {
+            console.log('Initializing theme:', currentTheme);
+            document.body.className = currentTheme;
+            updateThemeIcon();
+        }
+
+        function toggleTheme() {
+            console.log('Toggling theme from:', currentTheme);
+            currentTheme = currentTheme === 'ocean-theme' ? 'dark-theme' : 'ocean-theme';
+            document.body.className = currentTheme;
+            localStorage.setItem('todo_theme', currentTheme);
+            updateThemeIcon();
+            
+            // Show theme change message
+            const themeName = currentTheme === 'dark-theme' ? 'Dark Mode' : 'Ocean Breeze';
+            showMessage(`Switched to ${themeName} theme! 🎨`, 'success');
+        }
+
+        function updateThemeIcon() {
+            const themeIcon = document.getElementById('themeIcon');
+            if (themeIcon) {
+                themeIcon.textContent = currentTheme === 'dark-theme' ? '☀️' : '🌙';
+            }
+        }
 
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
+            initializeTheme();
             setupEventListeners();
             checkAuthState();
             checkPrintSupport();
@@ -779,6 +940,24 @@
             // Logout
             document.getElementById('logoutBtn').addEventListener('click', handleLogout);
             
+            // Theme switcher
+            const themeSwitchBtn = document.getElementById('themeSwitchBtn');
+            if (themeSwitchBtn) {
+                themeSwitchBtn.addEventListener('click', toggleTheme);
+                
+                // Mobile touch events for theme switcher
+                themeSwitchBtn.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    this.style.background = 'rgba(255, 255, 255, 0.4)';
+                });
+                
+                themeSwitchBtn.addEventListener('touchend', function(e) {
+                    e.preventDefault();
+                    this.style.background = 'rgba(255, 255, 255, 0.2)';
+                    toggleTheme();
+                });
+            }
+
             // Print - with better mobile support
             const printBtn = document.getElementById('printBtn');
             printBtn.addEventListener('click', handlePrint);
