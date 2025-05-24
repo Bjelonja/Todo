@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Todo App</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.38.0/umd/supabase.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Login Screen */
+        .login-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-card h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #667eea;
+            font-size: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            min-height: 44px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 44px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Main App */
+        .app-screen {
+            display: none;
+        }
+
+        .app-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 20px;
+            border-radius: 0 0 20px 20px;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .app-header h1 {
+            color: #667eea;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .user-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .logout-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            min-height: 36px;
+        }
+
+        /* Add Todo Form */
+        .add-todo-form {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .add-todo-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            min-height: 44px;
+        }
+
+        .add-todo-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .add-btn {
+            width: 100%;
+            background: #4CAF50;
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            min-height: 44px;
+            transition: all 0.3s ease;
+        }
+
+        .add-btn:hover {
+            background: #45a049;
+            transform: translateY(-1px);
+        }
+
+        /* Todo List */
+        .todos-container {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .todos-header {
+            background: #f8f9fa;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e1e5e9;
+        }
+
+        .todos-header h2 {
+            color: #333;
+            font-size: 1.3rem;
+        }
+
+        .todo-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .todo-item:hover {
+            background: #f8f9fa;
+        }
+
+        .todo-item.completed {
+            opacity: 0.6;
+            background: #f0f8f0;
+        }
+
+        .todo-checkbox {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #667eea;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 44px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .todo-checkbox.completed {
+            background: #667eea;
+            color: white;
+        }
+
+        .todo-content {
+            flex: 1;
+            min-height: 44px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .todo-title {
+            font-size: 1rem;
+            color: #333;
+            margin-bottom: 0.25rem;
+        }
+
+        .todo-title.completed {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        .todo-meta {
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .todo-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .note-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            min-height: 36px;
+            transition: all 0.3s ease;
+        }
+
+        .note-btn:hover {
+            background: #5a6fd8;
+        }
+
+        /* Notes Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h3 {
+            color: #333;
+            font-size: 1.3rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+            min-width: 44px;
+            min-height: 44px;
+        }
+
+        .note-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .note-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .note-item {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #667eea;
+        }
+
+        .note-text {
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+
+        .note-date {
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        /* Loading and Error States */
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: white;
+        }
+
+        .error {
+            background: #ff6b6b;
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .success {
+            background: #4CAF50;
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #999;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .login-card {
+                padding: 1.5rem;
+            }
+
+            .app-header {
+                margin-bottom: 1.5rem;
+            }
+
+            .todo-item {
+                padding: 1rem;
+            }
+
+            .modal-content {
+                padding: 1.5rem;
+                width: 95%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+
+            .login-card h1 {
+                font-size: 1.5rem;
+            }
+
+            .app-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .todo-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-card">
+            <h1>📝 Todo App</h1>
+            <div id="loginError" class="error" style="display: none;"></div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit" id="loginBtn" class="login-btn">Sign In</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main App Screen -->
+    <div id="appScreen" class="app-screen">
+        <div class="container">
+            <!-- Header -->
+            <div class="app-header">
+                <h1>📝 My Todos</h1>
+                <div class="user-info">
+                    <span id="userEmail"></span>
+                    <button id="logoutBtn" class="logout-btn">Logout</button>
+                </div>
+            </div>
+
+            <!-- Add Todo Form -->
+            <div class="add-todo-form">
+                <input type="text" id="todoInput" class="add-todo-input" placeholder="What needs to be done?" maxlength="255">
+                <button id="addTodoBtn" class="add-btn">Add Todo</button>
+            </div>
+
+            <!-- Messages -->
+            <div id="message" style="display: none;"></div>
+
+            <!-- Todos List -->
+            <div class="todos-container">
+                <div class="todos-header">
+                    <h2>Your Tasks</h2>
+                </div>
+                <div id="todosList">
+                    <div class="loading">Loading todos...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notes Modal -->
+    <div id="notesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="notesTitle">Todo Notes</h3>
+                <button class="close-btn" onclick="closeNotesModal()">&times;</button>
+            </div>
+            
+            <textarea id="noteInput" class="note-input" placeholder="Add a note..."></textarea>
+            <button id="addNoteBtn" class="add-btn">Add Note</button>
+            
+            <div id="notesList"></div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration - Replace with your actual Supabase credentials
+        const SUPABASE_URL = 'https://vkgtkddfjsztgoffrpjv.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZrZ3RrZGRmanN6dGdvZmZycGp2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc4NDcyNTQsImV4cCI6MjA2MzQyMzI1NH0.fVYGSgkBA2Oe1V5NhxDdVhqV4QDeA3JC90N2tkM8Syc';
+
+        // Global variables
+        let supabase;
+        let currentUser = null;
+        let sessionToken = null;
+        let userId = null;
+        let currentTodoId = null;
+
+        // Initialize Supabase
+        function initSupabase() {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            initSupabase();
+            setupEventListeners();
+            checkAuthState();
+        });
+
+        function setupEventListeners() {
+            // Login form - prevent default form submission
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                handleLogin(e);
+            });
+            
+            // Add todo
+            document.getElementById('addTodoBtn').addEventListener('click', handleAddTodo);
+            document.getElementById('todoInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleAddTodo();
+                }
+            });
+
+            // Logout
+            document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+
+            // Add note
+            document.getElementById('addNoteBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                handleAddNote();
+            });
+            document.getElementById('noteInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && e.ctrlKey) {
+                    e.preventDefault();
+                    handleAddNote();
+                }
+            });
+
+            // Close modal on backdrop click
+            document.getElementById('notesModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeNotesModal();
+                }
+            });
+        }
+
+        function checkAuthState() {
+            console.log('Checking auth state...');
+            const stored = localStorage.getItem('todo_session');
+            console.log('Stored session:', stored);
+            
+            if (stored) {
+                try {
+                    const session = JSON.parse(stored);
+                    console.log('Parsed session:', session);
+                    
+                    if (session.token && session.userId && session.user) {
+                        sessionToken = session.token;
+                        userId = session.userId;
+                        currentUser = session.user;
+                        console.log('Session restored successfully:', {
+                            userId: userId,
+                            userEmail: currentUser.email
+                        });
+                        showApp();
+                        return;
+                    } else {
+                        console.log('Session incomplete, removing...');
+                        localStorage.removeItem('todo_session');
+                    }
+                } catch (e) {
+                    console.error('Error parsing session:', e);
+                    localStorage.removeItem('todo_session');
+                }
+            }
+            
+            console.log('No valid session found, showing login');
+            showLogin();
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const errorDiv = document.getElementById('loginError');
+            
+            console.log('Login attempt for:', email);
+            
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Signing in...';
+            errorDiv.style.display = 'none';
+
+            try {
+                console.log('Attempting direct Supabase auth...');
+                
+                // Use the same direct API approach as the Python app
+                const url = `${SUPABASE_URL}/auth/v1/token?grant_type=password`;
+                const headers = {
+                    "apikey": SUPABASE_KEY,
+                    "Content-Type": "application/json"
+                };
+                const payload = {
+                    email: email,
+                    password: password
+                };
+
+                console.log('Making request to:', url);
+                console.log('With payload:', payload);
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(payload)
+                });
+
+                console.log('Response status:', response.status);
+                
+                if (response.status === 200) {
+                    const data = await response.json();
+                    console.log('Login successful!', data);
+                    
+                    sessionToken = data.access_token;
+                    userId = data.user.id;
+                    currentUser = data.user;
+                    
+                    // Store session
+                    localStorage.setItem('todo_session', JSON.stringify({
+                        token: sessionToken,
+                        userId: userId,
+                        user: currentUser
+                    }));
+                    
+                    showApp();
+                } else {
+                    const errorData = await response.text();
+                    console.error('Login failed with status:', response.status, errorData);
+                    throw new Error(`Login failed: ${response.status} - ${errorData}`);
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                errorDiv.textContent = `Login failed: ${error.message}`;
+                errorDiv.style.display = 'block';
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Sign In';
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('todo_session');
+            sessionToken = null;
+            userId = null;
+            currentUser = null;
+            showLogin();
+        }
+
+        function showLogin() {
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('appScreen').style.display = 'none';
+        }
+
+        function showApp() {
+            console.log('showApp called with user:', currentUser);
+            
+            if (!currentUser || !currentUser.email) {
+                console.error('No current user, redirecting to login');
+                showLogin();
+                return;
+            }
+            
+            console.log('Showing main app screen');
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('appScreen').style.display = 'block';
+            document.getElementById('userEmail').textContent = currentUser.email;
+            
+            console.log('Loading todos...');
+            loadTodos();
+        }
+
+        async function loadTodos() {
+            const todosList = document.getElementById('todosList');
+            todosList.innerHTML = '<div class="loading">Loading todos...</div>';
+
+            try {
+                console.log('Loading todos for user:', userId);
+                console.log('Using token:', sessionToken ? 'Token present' : 'No token');
+                
+                if (!sessionToken || !userId) {
+                    console.error('Missing session token or user ID');
+                    throw new Error('Not authenticated');
+                }
+                
+                // Use direct API approach like Python app
+                const headers = {
+                    "apikey": SUPABASE_KEY,
+                    "Authorization": `Bearer ${sessionToken}`
+                };
+                
+                const url = `${SUPABASE_URL}/rest/v1/todos?user_id=eq.${userId}&select=*&order=updated_at.desc`;
+                console.log('Fetching from:', url);
+                
+                const response = await fetch(url, { headers });
+                console.log('Response status:', response.status);
+                
+                if (response.status === 401) {
+                    console.error('Unauthorized - token may be expired');
+                    localStorage.removeItem('todo_session');
+                    showLogin();
+                    return;
+                }
+                
+                if (response.status === 200) {
+                    const todos = await response.json();
+                    console.log('Loaded todos:', todos);
+                    displayTodos(todos || []);
+                } else {
+                    const errorText = await response.text();
+                    console.error('Load todos failed:', response.status, errorText);
+                    throw new Error(`Failed to load todos: ${response.status} - ${errorText}`);
+                }
+            } catch (error) {
+                console.error('Load todos error:', error);
+                
+                if (error.message.includes('Not authenticated') || error.message.includes('401')) {
+                    console.log('Authentication error, redirecting to login');
+                    showLogin();
+                } else {
+                    todosList.innerHTML = `<div class="error">Failed to load todos: ${error.message}</div>`;
+                }
+            }
+        }
+
+        function displayTodos(todos) {
+            const todosList = document.getElementById('todosList');
+            
+            if (todos.length === 0) {
+                todosList.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No todos yet</h3>
+                        <p>Add your first todo above to get started!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const activeTodos = todos.filter(todo => !todo.completed);
+            const completedTodos = todos.filter(todo => todo.completed);
+
+            let html = '';
+            
+            // Active todos
+            activeTodos.forEach(todo => {
+                html += createTodoHTML(todo);
+            });
+            
+            // Completed todos
+            if (completedTodos.length > 0) {
+                html += '<div style="padding: 1rem 1.5rem; background: #f8f9fa; font-weight: 600; color: #666;">Completed</div>';
+                completedTodos.forEach(todo => {
+                    html += createTodoHTML(todo);
+                });
+            }
+
+            todosList.innerHTML = html;
+        }
+
+        function createTodoHTML(todo) {
+            const createdAt = new Date(todo.created_at).toLocaleDateString();
+            const updatedAt = todo.updated_at ? new Date(todo.updated_at).toLocaleDateString() : createdAt;
+            
+            return `
+                <div class="todo-item ${todo.completed ? 'completed' : ''}">
+                    <div class="todo-checkbox ${todo.completed ? 'completed' : ''}" onclick="toggleTodo(${todo.id}, ${!todo.completed})">
+                        ${todo.completed ? '✓' : ''}
+                    </div>
+                    <div class="todo-content">
+                        <div class="todo-title ${todo.completed ? 'completed' : ''}">${todo.title}</div>
+                        <div class="todo-meta">Created: ${createdAt} | Updated: ${updatedAt}</div>
+                    </div>
+                    <div class="todo-actions">
+                        <button class="note-btn" onclick="openNotesModal(${todo.id}, '${todo.title.replace(/'/g, "\\'")}')">
+                            Notes
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function handleAddTodo() {
+            const input = document.getElementById('todoInput');
+            const task = input.value.trim();
+            
+            if (!task) return;
+
+            const addBtn = document.getElementById('addTodoBtn');
+            addBtn.disabled = true;
+            addBtn.textContent = 'Adding...';
+
+            try {
+                console.log('Adding todo:', task);
+                
+                // Use direct API approach like Python app
+                const headers = {
+                    "apikey": SUPABASE_KEY,
+                    "Authorization": `Bearer ${sessionToken}`,
+                    "Content-Type": "application/json",
+                    "Prefer": "return=minimal"
+                };
+                
+                const payload = {
+                    title: task,
+                    user_id: userId,
+                    completed: false
+                };
+                
+                console.log('Posting todo with payload:', payload);
+                
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/todos`, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(payload)
+                });
+
+                console.log('Add todo response status:', response.status);
+
+                if (response.status === 201) {
+                    console.log('Todo added successfully');
+                    input.value = '';
+                    showMessage('Todo added successfully!', 'success');
+                    loadTodos();
+                } else {
+                    const errorText = await response.text();
+                    console.error('Add todo failed:', response.status, errorText);
+                    throw new Error(`Failed to add todo: ${response.status} - ${errorText}`);
+                }
+            } catch (error) {
+                console.error('Add todo error:', error);
+                showMessage(`Failed to add todo: ${error.message}`, 'error');
+            } finally {
+                addBtn.disabled = false;
+                addBtn.textContent = 'Add Todo';
+            }
+        }
+
+        async function toggleTodo(todoId, completed) {
+            try {
+                console.log('Toggling todo:', todoId, 'to completed:', completed);
+                
+                // Use direct API approach like Python app
+                const headers = {
+                    "apikey": SUPABASE_KEY,
+                    "Authorization": `Bearer ${sessionToken}`,
+                    "Content-Type": "application/json"
+                };
+                
+                const payload = {
+                    completed: completed,
+                    updated_at: new Date().toISOString()
+                };
+                
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/todos?id=eq.${todoId}`, {
+                    method: 'PATCH',
+                    headers: headers,
+                    body: JSON.stringify(payload)
+                });
+
+                console.log('Toggle todo response status:', response.status);
+
+                if (response.status === 204 || response.status === 200) {
+                    console.log('Todo toggled successfully');
+                    loadTodos();
+                } else {
+                    const errorText = await response.text();
+                    console.error('Toggle todo failed:', response.status, errorText);
+                    throw new Error(`Failed to update todo: ${response.status} - ${errorText}`);
+                }
+            } catch (error) {
+                console.error('Toggle todo error:', error);
+                showMessage(`Failed to update todo: ${error.message}`, 'error');
+            }
+        }
+
+        async function openNotesModal(todoId, todoTitle) {
+            currentTodoId = todoId;
+            document.getElementById('notesTitle').textContent = `Notes for: ${todoTitle}`;
+            document.getElementById('notesModal').style.display = 'block';
+            document.getElementById('noteInput').value = '';
+            await loadNotes(todoId);
+        }
+
+        function closeNotesModal() {
+            document.getElementById('notesModal').style.display = 'none';
+            currentTodoId = null;
+        }
+
+        async function loadNotes(todoId) {
+            const notesList = document.getElementById('notesList');
+            notesList.innerHTML = '<div class="loading">Loading notes...</div>';
+
+            try {
+                console.log('Loading notes for todo:', todoId);
+                
+                // Use direct API approach like Python app
+                const headers = {
+                    "apikey": SUPABASE_KEY,
+                    "Authorization": `Bearer ${sessionToken}`
+                };
+                
+                const url = `${SUPABASE_URL}/rest/v1/todonotes?todo_id=eq.${todoId}&select=*&order=created_at.desc`;
+                console.log('Fetching notes from:', url);
+                
+                const response = await fetch(url, { headers });
+                console.log('Load notes response status:', response.status);
+                
+                if (response.status === 200) {
+                    const notes = await response.json();
+                    console.log('Loaded notes:', notes);
+                    displayNotes(notes || []);
+                } else {
+                    const errorText = await response.text();
+                    console.error('Load notes failed:', response.status, errorText);
+                    throw new Error(`Failed to load notes: ${response.status} - ${errorText}`);
+                }
+            } catch (error) {
+                console.error('Load notes error:', error);
+                notesList.innerHTML = `<div class="error">Failed to load notes: ${error.message}</div>`;
+            }
+        }
+
+        function displayNotes(notes) {
+            const notesList = document.getElementById('notesList');
+            
+            if (notes.length === 0) {
+                notesList.innerHTML = '<div class="empty-state"><p>No notes yet. Add one above!</p></div>';
+                return;
+            }
+
+            let html = '';
+            notes.forEach(note => {
+                const createdAt = new Date(note.created_at).toLocaleString();
+                html += `
+                    <div class="note-item">
+                        <div class="note-text">${note.note}</div>
+                        <div class="note-date">${createdAt}</div>
+                    </div>
+                `;
+            });
+
+            notesList.innerHTML = html;
+        }
+
+        async function handleAddNote() {
+            const noteInput = document.getElementById('noteInput');
+            const noteText = noteInput.value.trim();
+            
+            if (!noteText || !currentTodoId) return;
+
+            const addBtn = document.getElementById('addNoteBtn');
+            addBtn.disabled = true;
+            addBtn.textContent = 'Adding...';
+
+            try {
+                console.log('Adding note to todo:', currentTodoId, 'note:', noteText);
+                
+                // Use direct API approach like Python app
+                const headers = {
+                    "apikey": SUPABASE_KEY,
+                    "Authorization": `Bearer ${sessionToken}`,
+                    "Content-Type": "application/json",
+                    "Prefer": "return=minimal"
+                };
+                
+                const payload = {
+                    todo_id: currentTodoId,
+                    note: noteText
+                };
+                
+                console.log('Posting note with payload:', payload);
+                
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/todonotes`, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(payload)
+                });
+
+                console.log('Add note response status:', response.status);
+
+                if (response.status === 201) {
+                    console.log('Note added successfully');
+                    noteInput.value = '';
+                    loadNotes(currentTodoId);
+                } else {
+                    const errorText = await response.text();
+                    console.error('Add note failed:', response.status, errorText);
+                    throw new Error(`Failed to add note: ${response.status} - ${errorText}`);
+                }
+            } catch (error) {
+                console.error('Add note error:', error);
+                showMessage(`Failed to add note: ${error.message}`, 'error');
+            } finally {
+                addBtn.disabled = false;
+                addBtn.textContent = 'Add Note';
+            }
+        }
+
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = type;
+            messageDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
