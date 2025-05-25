@@ -873,22 +873,36 @@
             }
 
             .sidebar {
-                transform: translateX(-105%);
-                width: 85vw;
-                max-width: 300px;
-                min-width: 280px;
-                position: fixed;
-                top: 0;
-                left: 0;
-                height: 100vh;
-                z-index: 1000;
+                transform: translateX(-100%) !important;
+                width: 85vw !important;
+                max-width: 300px !important;
+                min-width: 280px !important;
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                height: 100vh !important;
+                z-index: 1000 !important;
+                background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 50%, var(--accent-color) 100%) !important;
+                backdrop-filter: blur(20px) !important;
+                border-right: 1px solid rgba(255, 255, 255, 0.2) !important;
                 box-shadow: none;
-                transition: transform 0.3s ease, box-shadow 0.3s ease;
+                transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+                overflow-y: auto !important;
+                padding: 2rem 0 !important;
             }
 
             .sidebar.open {
-                transform: translateX(0);
-                box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+                transform: translateX(0) !important;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.5) !important;
+            }
+
+            /* Additional specificity for mobile sidebar */
+            @media (max-width: 768px) {
+                .sidebar.open {
+                    transform: translateX(0) !important;
+                    visibility: visible !important;
+                    opacity: 1 !important;
+                }
             }
 
             .main-content {
@@ -955,19 +969,19 @@
 
             /* Mobile Backdrop */
             #mobileBackdrop {
-                display: none;
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                width: 100vw;
-                height: 100vh;
-                background: rgba(0, 0, 0, 0.6);
-                z-index: 999;
-                backdrop-filter: blur(3px);
-                opacity: 0;
-                transition: opacity 0.3s ease;
+                display: none !important;
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                bottom: 0 !important;
+                width: 100vw !important;
+                height: 100vh !important;
+                background: rgba(0, 0, 0, 0.6) !important;
+                z-index: 999 !important;
+                backdrop-filter: blur(3px) !important;
+                opacity: 0 !important;
+                transition: opacity 0.3s ease !important;
             }
 
             .login-card {
@@ -1511,39 +1525,62 @@
             const menuBtn = document.getElementById('mobileMenuBtn');
             const backdrop = document.getElementById('mobileBackdrop');
             
-            // Small test alert message for debugging - remove after testing
-            const testPopup = document.createElement('div');
-            testPopup.style.position = 'fixed';
-            testPopup.style.bottom = '20px';
-            testPopup.style.left = '50%';
-            testPopup.style.transform = 'translateX(-50%)';
-            testPopup.style.background = 'rgba(0,0,0,0.8)';
-            testPopup.style.color = 'white';
-            testPopup.style.padding = '10px';
-            testPopup.style.borderRadius = '5px';
-            testPopup.style.zIndex = '9999';
-            testPopup.textContent = sidebar && sidebar.classList.contains('open') ? 'Closing Menu...' : 'Opening Menu...';
-            document.body.appendChild(testPopup);
-            setTimeout(() => document.body.removeChild(testPopup), 2000);
+            if (!sidebar || !menuBtn) {
+                return;
+            }
             
-            if (sidebar && menuBtn) {
-                const isOpening = !sidebar.classList.contains('open');
+            const isCurrentlyOpen = sidebar.classList.contains('open');
+            const isOpening = !isCurrentlyOpen;
+            
+            // Enhanced sidebar control with inline styles as backup
+            if (isOpening) {
+                sidebar.classList.add('open');
+                menuBtn.classList.add('active');
                 
-                sidebar.classList.toggle('open');
-                menuBtn.classList.toggle('active');
+                // Force sidebar visible with inline styles as backup
+                sidebar.style.transform = 'translateX(0)';
+                sidebar.style.zIndex = '1000';
+                sidebar.style.position = 'fixed';
+                sidebar.style.left = '0';
+                sidebar.style.top = '0';
+                sidebar.style.height = '100vh';
+                sidebar.style.width = '85vw';
+                sidebar.style.maxWidth = '300px';
+                sidebar.style.boxShadow = '0 0 20px rgba(0, 0, 0, 0.5)';
                 
-                // Handle backdrop
-                if (backdrop) {
-                    if (isOpening) {
-                        backdrop.style.display = 'block';
-                        setTimeout(() => backdrop.style.opacity = '1', 10);
-                    } else {
-                        backdrop.style.opacity = '0';
-                        setTimeout(() => backdrop.style.display = 'none', 300);
-                    }
+            } else {
+                sidebar.classList.remove('open');
+                menuBtn.classList.remove('active');
+                
+                // Reset inline styles to allow CSS to take over
+                sidebar.style.transform = '';
+                sidebar.style.boxShadow = '';
+            }
+            
+            // Enhanced backdrop handling
+            if (backdrop) {
+                if (isOpening) {
+                    backdrop.style.display = 'block';
+                    backdrop.style.position = 'fixed';
+                    backdrop.style.top = '0';
+                    backdrop.style.left = '0';
+                    backdrop.style.right = '0';
+                    backdrop.style.bottom = '0';
+                    backdrop.style.zIndex = '999';
+                    backdrop.style.background = 'rgba(0, 0, 0, 0.5)';
+                    backdrop.style.backdropFilter = 'blur(3px)';
+                    
+                    // Force repaint and fade in
+                    backdrop.offsetHeight;
+                    backdrop.style.opacity = '1';
+                } else {
+                    backdrop.style.opacity = '0';
+                    setTimeout(() => {
+                        if (backdrop.style.opacity === '0') {
+                            backdrop.style.display = 'none';
+                        }
+                    }, 300);
                 }
-                
-                console.log('Mobile menu toggled. Open:', isOpening);
             }
         }
 
@@ -1566,8 +1603,6 @@
                 mobileMenuBtn.style.minHeight = '44px';
                 mobileMenuBtn.style.minWidth = '44px';
                 mobileMenuBtn.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
-                
-                console.log('Mobile menu button configured for mobile device');
             }
         }
 
