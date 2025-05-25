@@ -2,49 +2,53 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📊 ProjectFlow - Professional Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#667eea">
+    <title>ProjectFlow - Professional Task Management</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* Reset and Base Styles */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --accent-color: #f093fb;
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f7fafc;
+            --border-color: #e2e8f0;
+            --shadow-light: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-medium: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-large: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --text-primary: #f7fafc;
+            --text-secondary: #e2e8f0;
+            --bg-primary: #1a202c;
+            --bg-secondary: #2d3748;
+            --border-color: #4a5568;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 50%, var(--accent-color) 100%);
             min-height: 100vh;
+            color: var(--text-primary);
             transition: all 0.3s ease;
-        }
-
-        /* Theme Variables */
-        .ocean-theme {
-            --primary-color: #3498db;
-            --secondary-color: #2980b9;
-            --text-color: #ffffff;
-            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --card-bg: rgba(255, 255, 255, 0.1);
-            --border-color: rgba(255, 255, 255, 0.2);
-        }
-
-        .dark-theme {
-            --primary-color: #bb86fc;
-            --secondary-color: #3700b3;
-            --text-color: #e1e1e1;
-            --bg-gradient: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            --card-bg: rgba(255, 255, 255, 0.05);
-            --border-color: rgba(255, 255, 255, 0.1);
-        }
-
-        body.ocean-theme {
-            background: var(--bg-gradient);
-        }
-
-        body.dark-theme {
-            background: var(--bg-gradient);
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            overflow-x: hidden;
         }
 
         /* Login Screen Styles */
@@ -53,800 +57,1410 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background: var(--bg-gradient);
+            padding: 20px;
         }
 
         .login-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
             padding: 3rem;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
+            border-radius: 24px;
+            box-shadow: var(--shadow-large);
             width: 100%;
-            text-align: center;
+            max-width: 420px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .login-card h1 {
-            color: var(--text-color);
+            text-align: center;
             margin-bottom: 2rem;
-            font-size: 2rem;
-            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .form-group {
             margin-bottom: 1.5rem;
-            text-align: left;
         }
 
         .form-group label {
             display: block;
             margin-bottom: 0.5rem;
-            color: var(--text-color);
-            font-weight: 500;
+            font-weight: 600;
+            color: var(--text-primary);
         }
 
         .form-group input {
             width: 100%;
-            padding: 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text-color);
+            padding: 16px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
             font-size: 1rem;
             transition: all 0.3s ease;
+            min-height: 44px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            -webkit-appearance: none;
+            appearance: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .form-group input:focus {
             outline: none;
             border-color: var(--primary-color);
-            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-1px);
         }
 
-        .btn-login {
+        .login-btn {
             width: 100%;
-            padding: 1rem;
-            background: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
+            padding: 16px;
             border: none;
-            border-radius: 10px;
-            font-size: 1rem;
+            border-radius: 12px;
+            font-size: 1.1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-bottom: 1rem;
-        }
-
-        .btn-login:hover {
-            background: var(--secondary-color);
-            transform: translateY(-2px);
-        }
-
-        .error {
-            background: rgba(231, 76, 60, 0.2);
-            color: #e74c3c;
-            padding: 1rem;
-            border-radius: 10px;
-            margin-bottom: 1rem;
-            border: 1px solid rgba(231, 76, 60, 0.3);
-        }
-
-        /* Dashboard Layout */
-        .app-container {
-            display: flex;
-            height: 100vh;
+            min-height: 44px;
+            position: relative;
             overflow: hidden;
         }
 
-        .nav-sidebar {
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error, .success {
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .error {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+        }
+
+        .success {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        /* Main App Layout */
+        .app-screen {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .app-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
             width: 280px;
             background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(20px);
             border-right: 1px solid rgba(255, 255, 255, 0.2);
-            display: flex;
-            flex-direction: column;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
             transition: all 0.3s ease;
-            position: relative;
             z-index: 1000;
         }
 
-        .nav-sidebar.collapsed {
-            width: 70px;
-        }
-
         .sidebar-header {
-            padding: 1.5rem;
+            padding: 0 2rem 2rem 2rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            margin-bottom: 2rem;
         }
 
-        .sidebar-header h2 {
-            margin: 0;
-            font-size: 1.2rem;
-            color: var(--text-color);
+        .sidebar-header h1 {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ffffff, #f0f0f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        .sidebar-toggle {
-            background: none;
-            border: none;
-            color: var(--text-color);
-            font-size: 1.2rem;
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .sidebar-toggle:hover {
-            background: rgba(255, 255, 255, 0.1);
+        .sidebar-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
         }
 
         .nav-menu {
-            flex: 1;
             list-style: none;
-            padding: 1rem 0;
-            margin: 0;
+            padding: 0 1rem;
         }
 
-        .nav-menu li {
-            margin: 0.5rem 0;
+        .nav-item {
+            margin-bottom: 0.5rem;
         }
 
         .nav-link {
             display: flex;
             align-items: center;
             padding: 1rem 1.5rem;
-            color: var(--text-color);
+            color: rgba(255, 255, 255, 0.8);
             text-decoration: none;
+            border-radius: 12px;
             transition: all 0.3s ease;
-            border-radius: 0;
-            position: relative;
+            font-weight: 500;
+            cursor: pointer;
         }
 
         .nav-link:hover {
             background: rgba(255, 255, 255, 0.1);
+            color: white;
             transform: translateX(5px);
         }
 
         .nav-link.active {
             background: rgba(255, 255, 255, 0.2);
-            border-right: 3px solid var(--primary-color);
+            color: white;
+            font-weight: 600;
         }
 
         .nav-icon {
             margin-right: 1rem;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             width: 20px;
             text-align: center;
         }
 
-        .sidebar-footer {
+        .user-section {
+            position: absolute;
+            bottom: 2rem;
+            left: 2rem;
+            right: 2rem;
             padding: 1.5rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .theme-selector {
+        .user-info {
+            display: flex;
+            align-items: center;
             margin-bottom: 1rem;
         }
 
-        .theme-selector label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--text-color);
-            font-size: 0.9rem;
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 1rem;
         }
 
-        .theme-selector select {
-            width: 100%;
-            padding: 0.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text-color);
+        .user-details h3 {
+            color: white;
             font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .user-details p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.8rem;
         }
 
         .logout-btn {
             width: 100%;
-            padding: 0.8rem;
-            background: rgba(220, 53, 69, 0.2);
-            border: 1px solid rgba(220, 53, 69, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 0.75rem;
             border-radius: 8px;
-            color: #dc3545;
             cursor: pointer;
+            font-weight: 500;
             transition: all 0.3s ease;
             font-size: 0.9rem;
         }
 
         .logout-btn:hover {
-            background: rgba(220, 53, 69, 0.3);
-            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
         }
 
+        /* Main Content */
         .main-content {
             flex: 1;
-            overflow-y: auto;
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .page-content {
-            display: none;
+            margin-left: 280px;
             padding: 2rem;
             min-height: 100vh;
+            max-width: calc(100vw - 280px);
+            overflow-x: hidden;
         }
 
-        .page-content.active {
+        .page {
+            display: none;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .page.active {
             display: block;
         }
 
         .page-header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 2rem;
+            border-radius: 20px;
             margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        .page-header h1 {
-            margin: 0 0 0.5rem 0;
-            color: var(--text-color);
+        .page-title {
+            color: white;
             font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
         }
 
-        .page-header p {
-            margin: 0;
-            color: var(--text-color);
-            opacity: 0.8;
+        .page-description {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
         }
 
-        /* Dashboard Stats */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
 
         .stat-card {
             background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(20px);
+            padding: 2rem;
+            border-radius: 16px;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 15px;
-            padding: 1.5rem;
-            display: flex;
-            align-items: center;
+            text-align: center;
             transition: all 0.3s ease;
         }
 
         .stat-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            box-shadow: var(--shadow-large);
         }
 
-        .stat-icon {
-            font-size: 2rem;
-            margin-right: 1rem;
-            opacity: 0.8;
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.5rem;
         }
 
-        .stat-info h3 {
-            margin: 0;
-            font-size: 1.8rem;
-            color: var(--text-color);
-        }
-
-        .stat-info p {
-            margin: 0.2rem 0 0 0;
-            color: var(--text-color);
-            opacity: 0.7;
-            font-size: 0.9rem;
-        }
-
-        /* Dashboard Grid */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-        }
-
-        .chart-container, .activity-feed {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 15px;
-            padding: 1.5rem;
-        }
-
-        .chart-container h3, .activity-feed h3 {
-            margin: 0 0 1rem 0;
-            color: var(--text-color);
-            font-size: 1.2rem;
+        .stat-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+            font-weight: 500;
         }
 
         .chart-container {
-            height: 300px;
-            position: relative;
-        }
-
-        #taskChart {
-            max-height: 200px;
-        }
-
-        .activity-item {
-            display: flex;
-            align-items: center;
-            padding: 0.8rem 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .activity-item:last-child {
-            border-bottom: none;
-        }
-
-        .activity-icon {
-            margin-right: 1rem;
-            font-size: 1.1rem;
-        }
-
-        .activity-text {
-            flex: 1;
-            color: var(--text-color);
-            font-size: 0.9rem;
-        }
-
-        .activity-time {
-            color: var(--text-color);
-            opacity: 0.6;
-            font-size: 0.8rem;
-        }
-
-        /* Original Todo Styles for Tasks Page */
-        .todo-container {
             background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(20px);
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
             border: 1px solid rgba(255, 255, 255, 0.2);
+            height: 350px;
+            max-height: 350px;
+            overflow: hidden;
+        }
+
+        .chart-title {
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 250px;
+            max-height: 250px;
+            width: 100%;
+        }
+
+        .chart-wrapper canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100% !important;
+            height: 100% !important;
+            max-height: 250px !important;
+        }
+
+        /* Tasks Page Styles */
+        .add-todo-form {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .add-todo-input {
+            flex: 1;
+            padding: 16px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            min-height: 44px;
+            -webkit-appearance: none;
+            appearance: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .add-todo-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .add-todo-input:focus {
+            outline: none;
+            border-color: white;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .add-btn {
+            background: linear-gradient(135deg, white, #f0f0f0);
+            color: var(--primary-color);
+            border: none;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            min-height: 44px;
+            font-size: 1rem;
+        }
+
+        .add-btn:hover {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .add-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .todos-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
             border-radius: 20px;
             padding: 2rem;
-            max-width: 100%;
-            margin: 0 auto;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        .task-input {
-            width: 100%;
-            padding: 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text-color);
-            font-size: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .task-item {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            padding: 1rem;
-            margin-bottom: 0.5rem;
+        .todos-header {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            transition: all 0.3s ease;
-        }
-
-        .task-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .task-item.completed {
-            opacity: 0.6;
-            text-decoration: line-through;
-        }
-
-        /* Placeholder Content */
-        .placeholder-content {
-            text-align: center;
-            padding: 3rem;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 15px;
-            border: 2px dashed rgba(255, 255, 255, 0.2);
-        }
-
-        .placeholder-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            opacity: 0.6;
-        }
-
-        .placeholder-content h3 {
-            color: var(--text-color);
-            margin-bottom: 1rem;
-        }
-
-        .placeholder-content p {
-            color: var(--text-color);
-            opacity: 0.8;
             margin-bottom: 1.5rem;
         }
 
-        .placeholder-content ul {
-            text-align: left;
-            display: inline-block;
-            color: var(--text-color);
-            opacity: 0.8;
+        .todos-header h2 {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
         }
 
-        .placeholder-content li {
+        .export-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .export-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .todo-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .todo-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .todo-item.completed {
+            opacity: 0.7;
+        }
+
+        .todo-main {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .todo-checkbox {
+            width: 28px;
+            height: 28px;
+            border: 2px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            font-weight: bold;
+            min-width: 28px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        .todo-checkbox.completed {
+            background: white;
+            color: var(--primary-color);
+        }
+
+        .todo-content {
+            flex: 1;
+            min-height: 44px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .todo-title {
+            font-size: 1.1rem;
+            color: white;
             margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .todo-title.completed {
+            text-decoration: line-through;
+        }
+
+        .todo-meta {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        /* Notes Styles */
+        .todo-notes {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .note-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 0.75rem;
+            border-left: 3px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .note-content {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+
+        .note-date {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.8rem;
+        }
+
+        .add-note-section {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .note-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .note-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .note-input:focus {
+            outline: none;
+            border-color: white;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .add-note-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 12px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .add-note-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .add-note-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            padding: 2rem;
+            font-style: italic;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            padding: 3rem 2rem;
+        }
+
+        .empty-state h3 {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        /* Message Styles */
+        #message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            z-index: 10000;
+            max-width: 300px;
+            box-shadow: var(--shadow-large);
+            transform: translateX(400px);
+            transition: all 0.3s ease;
+        }
+
+        #message.show {
+            transform: translateX(0);
+        }
+
+        #message.success {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+        }
+
+        #message.error {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+        }
+
+        /* Allow text selection for inputs and content */
+        input, textarea, .todo-title, .note-content {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
         }
 
         /* Mobile Responsive */
         @media (max-width: 768px) {
-            .nav-sidebar {
-                position: fixed;
-                left: -280px;
-                z-index: 1000;
-                height: 100vh;
+            .sidebar {
+                transform: translateX(-100%);
+                width: 100%;
+                max-width: 300px;
             }
 
-            .nav-sidebar.active {
-                left: 0;
+            .sidebar.open {
+                transform: translateX(0);
             }
 
             .main-content {
                 margin-left: 0;
+                padding: 1rem;
             }
 
-            .dashboard-grid {
-                grid-template-columns: 1fr;
+            .mobile-menu-btn {
+                display: block;
+                position: fixed;
+                top: 1rem;
+                left: 1rem;
+                z-index: 1001;
+                background: rgba(255, 255, 255, 0.2);
+                border: none;
+                color: white;
+                padding: 0.75rem;
+                border-radius: 12px;
+                cursor: pointer;
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            }
+
+            .form-row {
+                flex-direction: column;
             }
 
             .stats-grid {
                 grid-template-columns: 1fr;
             }
 
-            .page-content {
-                padding: 1rem;
+            .todos-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+
+            .add-note-section {
+                flex-direction: column;
+            }
+        }
+
+        .mobile-menu-btn {
+            display: none;
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            
+            .sidebar, .mobile-menu-btn, .export-btn, .add-todo-form, #message {
+                display: none !important;
+            }
+            
+            .main-content {
+                margin-left: 0 !important;
+                padding: 0 !important;
+            }
+            
+            .page-header {
+                background: none !important;
+                backdrop-filter: none !important;
+                border: none !important;
+                padding: 1rem 0 !important;
+            }
+            
+            .todos-container {
+                background: none !important;
+                backdrop-filter: none !important;
+                border: none !important;
+                padding: 0 !important;
+            }
+            
+            .todo-item {
+                background: none !important;
+                border: 1px solid #ddd !important;
+                break-inside: avoid;
+            }
+            
+            .todo-title {
+                color: black !important;
+            }
+            
+            .todo-meta, .note-content {
+                color: #666 !important;
             }
         }
     </style>
 </head>
-<body class="ocean-theme">
+<body>
     <!-- Login Screen -->
     <div id="loginScreen" class="login-screen">
         <div class="login-card">
-            <h1>📊 ProjectFlow</h1>
-            <div id="loginError" class="error" style="display: none;"></div>
+            <h1>ProjectFlow</h1>
+            <div id="loginMessage"></div>
             <form id="loginForm">
                 <div class="form-group">
                     <label for="email">Email</label>
-                    <input type="email" id="email" required>
+                    <input type="email" id="email" name="email" required>
                 </div>
                 <div class="form-group">
                     <label for="password">Password</label>
-                    <input type="password" id="password" required>
+                    <input type="password" id="password" name="password" required>
                 </div>
-                <button type="submit" class="btn-login">Login</button>
+                <button type="submit" class="login-btn" id="loginBtn">
+                    Sign In
+                </button>
             </form>
-            <p style="color: var(--text-color); opacity: 0.7; font-size: 0.9rem; margin-top: 1rem;">
-                Use any email and password to access the dashboard
-            </p>
         </div>
     </div>
 
-    <!-- Main App Container (hidden initially) -->
-    <div id="appContainer" class="app-container" style="display: none;">
-        <!-- Sidebar Navigation -->
-        <nav class="nav-sidebar">
-            <div class="sidebar-header">
-                <h2>📊 ProjectFlow</h2>
-                <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
-            </div>
-            <ul class="nav-menu">
-                <li><a href="#" onclick="showPage('dashboard')" class="nav-link active" data-page="dashboard">
-                    <span class="nav-icon">📊</span> Dashboard
-                </a></li>
-                <li><a href="#" onclick="showPage('tasks')" class="nav-link" data-page="tasks">
-                    <span class="nav-icon">✅</span> Tasks
-                </a></li>
-                <li><a href="#" onclick="showPage('projects')" class="nav-link" data-page="projects">
-                    <span class="nav-icon">🎯</span> Projects
-                </a></li>
-                <li><a href="#" onclick="showPage('clients')" class="nav-link" data-page="clients">
-                    <span class="nav-icon">👥</span> Clients
-                </a></li>
-                <li><a href="#" onclick="showPage('ai')" class="nav-link" data-page="ai">
-                    <span class="nav-icon">🤖</span> AI Integrations
-                </a></li>
-            </ul>
-            <div class="sidebar-footer">
-                <div class="theme-selector">
-                    <label for="themeSelect">🎨 Theme:</label>
-                    <select id="themeSelect" onchange="changeTheme()">
-                        <option value="ocean">🌊 Ocean Breeze</option>
-                        <option value="dark">🌙 Dark Mode</option>
-                    </select>
-                </div>
-                <button onclick="logout()" class="logout-btn">🚪 Logout</button>
-            </div>
-        </nav>
+    <!-- Main App Screen -->
+    <div id="appScreen" class="app-screen">
+        <div class="app-layout">
+            <!-- Mobile Menu Button -->
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <span class="nav-icon">☰</span>
+            </button>
 
-        <!-- Main Content Area -->
-        <main class="main-content">
-            <!-- Dashboard Page -->
-            <div id="dashboard-page" class="page-content active">
-                <div class="page-header">
-                    <h1>📊 Dashboard Overview</h1>
-                    <p id="currentDateTime"></p>
+            <!-- Sidebar -->
+            <nav class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <h1>ProjectFlow</h1>
+                    <p class="sidebar-subtitle">Professional Task Management</p>
                 </div>
                 
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon">✅</div>
-                        <div class="stat-info">
-                            <h3 id="totalTasks">0</h3>
-                            <p>Total Tasks</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">⏳</div>
-                        <div class="stat-info">
-                            <h3 id="pendingTasks">0</h3>
-                            <p>Pending</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">🎉</div>
-                        <div class="stat-info">
-                            <h3 id="completedTasks">0</h3>
-                            <p>Completed</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">📈</div>
-                        <div class="stat-info">
-                            <h3 id="completionRate">0%</h3>
-                            <p>Completion Rate</p>
-                        </div>
-                    </div>
-                </div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active" data-page="dashboard">
+                            <span class="nav-icon">📊</span>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-page="tasks">
+                            <span class="nav-icon">✅</span>
+                            Tasks
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-page="projects">
+                            <span class="nav-icon">📁</span>
+                            Projects
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-page="clients">
+                            <span class="nav-icon">👥</span>
+                            Clients
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-page="ai">
+                            <span class="nav-icon">🤖</span>
+                            AI Assistant
+                        </a>
+                    </li>
+                </ul>
 
-                <div class="dashboard-grid">
+                <div class="user-section">
+                    <div class="user-info">
+                        <div class="user-avatar" id="userAvatar">U</div>
+                        <div class="user-details">
+                            <h3 id="userName">User</h3>
+                            <p id="userEmail">user@email.com</p>
+                        </div>
+                    </div>
+                    <button class="logout-btn" id="logoutBtn">Sign Out</button>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <!-- Dashboard Page -->
+                <div id="dashboardPage" class="page active">
+                    <div class="page-header">
+                        <h1 class="page-title">Dashboard</h1>
+                        <p class="page-description">Overview of your tasks and productivity metrics</p>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalTasks">0</div>
+                            <div class="stat-label">Total Tasks</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="completedTasks">0</div>
+                            <div class="stat-label">Completed</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="pendingTasks">0</div>
+                            <div class="stat-label">Pending</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="completionRate">0%</div>
+                            <div class="stat-label">Completion Rate</div>
+                        </div>
+                    </div>
+
                     <div class="chart-container">
-                        <h3>📊 Task Distribution</h3>
-                        <canvas id="taskChart"></canvas>
+                        <h3 class="chart-title">Task Completion Progress</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="progressChart"></canvas>
+                        </div>
                     </div>
-                    <div class="activity-feed">
-                        <h3>🚀 Recent Activity</h3>
-                        <div id="activityList">
-                            <div class="activity-item">
-                                <span class="activity-icon">🎉</span>
-                                <span class="activity-text">Welcome to ProjectFlow Dashboard!</span>
-                                <span class="activity-time">Just now</span>
-                            </div>
+
+                    <div class="chart-container">
+                        <h3 class="chart-title">Task Distribution</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="distributionChart"></canvas>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Tasks Page (Your Original Todo) -->
-            <div id="tasks-page" class="page-content">
-                <div class="page-header">
-                    <h1>✅ Task Management</h1>
-                    <p>Manage your daily tasks and activities</p>
-                </div>
-                <div id="todoSection">
-                    <div class="todo-container">
-                        <input type="text" id="taskInput" class="task-input" placeholder="Add a new task..." onkeypress="if(event.key==='Enter') addTask()">
-                        <div id="taskList"></div>
+                <!-- Tasks Page -->
+                <div id="tasksPage" class="page">
+                    <div class="page-header">
+                        <h1 class="page-title">Tasks</h1>
+                        <p class="page-description">Manage your tasks and add detailed notes</p>
+                    </div>
+
+                    <div class="add-todo-form">
+                        <div class="form-row">
+                            <input type="text" class="add-todo-input" id="todoInput" placeholder="Add a new task...">
+                            <button class="add-btn" id="addBtn">Add Task</button>
+                        </div>
+                    </div>
+
+                    <div class="todos-container">
+                        <div class="todos-header">
+                            <h2>Your Tasks</h2>
+                            <button class="export-btn" id="exportBtn">
+                                <span>📄</span>
+                                Export
+                            </button>
+                        </div>
+                        <div id="todosList">
+                            <div class="loading">Loading your tasks...</div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Projects Page -->
-            <div id="projects-page" class="page-content">
-                <div class="page-header">
-                    <h1>🎯 Project Management</h1>
-                    <p>Track and manage your projects</p>
+                <!-- Projects Page -->
+                <div id="projectsPage" class="page">
+                    <div class="page-header">
+                        <h1 class="page-title">Projects</h1>
+                        <p class="page-description">Organize tasks into projects for better management</p>
+                    </div>
+                    <div style="text-align: center; padding: 4rem 2rem; color: rgba(255,255,255,0.7);">
+                        <h3 style="margin-bottom: 1rem; color: rgba(255,255,255,0.9);">🚀 Coming Soon</h3>
+                        <p>Project management features will be available in the next update.</p>
+                    </div>
                 </div>
-                <div class="placeholder-content">
-                    <div class="placeholder-icon">🚧</div>
-                    <h3>Projects Module Coming Soon</h3>
-                    <p>This section will contain comprehensive project management tools including:</p>
-                    <ul>
-                        <li>📋 Project planning and milestones</li>
-                        <li>👥 Team collaboration features</li>
-                        <li>📊 Progress tracking and analytics</li>
-                        <li>📅 Timeline and deadline management</li>
-                    </ul>
-                </div>
-            </div>
 
-            <!-- Clients Page -->
-            <div id="clients-page" class="page-content">
-                <div class="page-header">
-                    <h1>👥 Client Management</h1>
-                    <p>Manage your client relationships and communications</p>
+                <!-- Clients Page -->
+                <div id="clientsPage" class="page">
+                    <div class="page-header">
+                        <h1 class="page-title">Clients</h1>
+                        <p class="page-description">Manage client information and project assignments</p>
+                    </div>
+                    <div style="text-align: center; padding: 4rem 2rem; color: rgba(255,255,255,0.7);">
+                        <h3 style="margin-bottom: 1rem; color: rgba(255,255,255,0.9);">👥 Coming Soon</h3>
+                        <p>Client management features will be available in the next update.</p>
+                    </div>
                 </div>
-                <div class="placeholder-content">
-                    <div class="placeholder-icon">🤝</div>
-                    <h3>Client Management Coming Soon</h3>
-                    <p>This section will include:</p>
-                    <ul>
-                        <li>📇 Client contact management</li>
-                        <li>💼 Project assignments per client</li>
-                        <li>💰 Billing and invoicing tools</li>
-                        <li>📞 Communication history tracking</li>
-                    </ul>
-                </div>
-            </div>
 
-            <!-- AI Integrations Page -->
-            <div id="ai-page" class="page-content">
-                <div class="page-header">
-                    <h1>🤖 AI Integrations</h1>
-                    <p>Leverage AI to enhance your productivity</p>
+                <!-- AI Assistant Page -->
+                <div id="aiPage" class="page">
+                    <div class="page-header">
+                        <h1 class="page-title">AI Assistant</h1>
+                        <p class="page-description">Get intelligent suggestions and task automation</p>
+                    </div>
+                    <div style="text-align: center; padding: 4rem 2rem; color: rgba(255,255,255,0.7);">
+                        <h3 style="margin-bottom: 1rem; color: rgba(255,255,255,0.9);">🤖 Coming Soon</h3>
+                        <p>AI-powered task management and suggestions will be available soon.</p>
+                    </div>
                 </div>
-                <div class="placeholder-content">
-                    <div class="placeholder-icon">🚀</div>
-                    <h3>AI Tools Coming Soon</h3>
-                    <p>Future AI-powered features will include:</p>
-                    <ul>
-                        <li>🧠 Smart task prioritization</li>
-                        <li>📝 Automated report generation</li>
-                        <li>🎯 Intelligent project insights</li>
-                        <li>💡 Productivity recommendations</li>
-                    </ul>
-                </div>
-            </div>
-        </main>
+            </main>
+        </div>
     </div>
 
-    <script>
-        // Application State
-        let currentPage = 'dashboard';
-        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-        let taskChart = null;
+    <!-- Message Container -->
+    <div id="message"></div>
 
-        // Initialize App
+    <script>
+        // Configuration
+        const SUPABASE_URL = 'https://vkgtkddfjsztgoffrpjv.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZrZ3RrZGRmanN6dGdvZmZycGp2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc4NDcyNTQsImV4cCI6MjA2MzQyMzI1NH0.fVYGSgkBA2Oe1V5NhxDdVhqV4QDeA3JC90N2tkM8Syc';
+
+        // Global variables
+        let currentUser = null;
+        let sessionToken = null;
+        let userId = null;
+        let allTodos = [];
+        let progressChart = null;
+        let distributionChart = null;
+
+        // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
-            // Check if user is already logged in
-            if (localStorage.getItem('isLoggedIn') === 'true') {
-                loginSuccess();
-            }
-            
-            // Initialize theme
-            const savedTheme = localStorage.getItem('theme') || 'ocean';
-            document.body.className = savedTheme + '-theme';
-            
-            // Setup form submission
-            document.getElementById('loginForm').addEventListener('submit', handleLogin);
-            
-            // Load tasks
-            loadTasks();
+            setupEventListeners();
+            checkAuthState();
         });
 
-        // Login System
-        function handleLogin(e) {
+        function setupEventListeners() {
+            // Login form
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            
+            // Navigation
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', handleNavigation);
+            });
+
+            // Mobile menu
+            document.getElementById('mobileMenuBtn').addEventListener('click', toggleMobileMenu);
+            
+            // Logout
+            document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+            
+            // Add todo
+            document.getElementById('addBtn').addEventListener('click', handleAddTodo);
+            document.getElementById('todoInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') handleAddTodo();
+            });
+
+            // Export
+            document.getElementById('exportBtn').addEventListener('click', handleExport);
+
+            // Close sidebar on mobile when clicking outside
+            document.addEventListener('click', function(e) {
+                const sidebar = document.getElementById('sidebar');
+                const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+                
+                if (window.innerWidth <= 768 && 
+                    sidebar.classList.contains('open') && 
+                    !sidebar.contains(e.target) && 
+                    !mobileMenuBtn.contains(e.target)) {
+                    sidebar.classList.remove('open');
+                }
+            });
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        function handleNavigation(e) {
             e.preventDefault();
+            const targetPage = e.target.closest('.nav-link').dataset.page;
+            
+            // Update active nav link
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            e.target.closest('.nav-link').classList.add('active');
+            
+            // Show target page
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById(targetPage + 'Page').classList.add('active');
+            
+            // Close mobile menu
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('open');
+            }
+
+            // Load page-specific data
+            if (targetPage === 'dashboard') {
+                updateDashboardStats();
+            } else if (targetPage === 'tasks') {
+                loadTodos();
+            }
+        }
+
+        function checkAuthState() {
+            const stored = localStorage.getItem('projectflow_session');
+            if (stored) {
+                try {
+                    const session = JSON.parse(stored);
+                    if (session.expires > Date.now()) {
+                        currentUser = session.user;
+                        sessionToken = session.token;
+                        userId = session.userId;
+                        showApp();
+                        return;
+                    }
+                } catch (e) {
+                    console.error('Invalid stored session');
+                }
+            }
+            showLogin();
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const btn = document.getElementById('loginBtn');
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             
-            if (email && password) {
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('currentUser', email);
-                loginSuccess();
-            } else {
-                showError('Please enter both email and password');
-            }
-        }
-
-        function loginSuccess() {
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('appContainer').style.display = 'flex';
-            showPage('dashboard');
-            updateDateTime();
-            setInterval(updateDateTime, 60000);
+            btn.disabled = true;
+            btn.textContent = 'Signing in...';
             
-            // Apply saved theme
-            const savedTheme = localStorage.getItem('theme') || 'ocean';
-            document.body.className = savedTheme + '-theme';
-            document.getElementById('themeSelect').value = savedTheme;
+            try {
+                const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_KEY
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    currentUser = data.user;
+                    sessionToken = data.access_token;
+                    userId = data.user.id;
+                    
+                    // Store session
+                    localStorage.setItem('projectflow_session', JSON.stringify({
+                        user: currentUser,
+                        token: sessionToken,
+                        userId: userId,
+                        expires: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
+                    }));
+                    
+                    showApp();
+                } else {
+                    const error = await response.json();
+                    showLoginMessage(error.error_description || 'Login failed', 'error');
+                }
+            } catch (error) {
+                showLoginMessage('Network error. Please try again.', 'error');
+            }
+            
+            btn.disabled = false;
+            btn.textContent = 'Sign In';
         }
 
-        function logout() {
-            localStorage.removeItem('isLoggedIn');
-            localStorage.removeItem('currentUser');
-            document.getElementById('appContainer').style.display = 'none';
+        function handleLogout() {
+            localStorage.removeItem('projectflow_session');
+            currentUser = null;
+            sessionToken = null;
+            userId = null;
+            showLogin();
+        }
+
+        function showLogin() {
             document.getElementById('loginScreen').style.display = 'flex';
-            document.getElementById('loginForm').reset();
+            document.getElementById('appScreen').style.display = 'none';
+            document.getElementById('loginMessage').innerHTML = '';
         }
 
-        function showError(message) {
-            const errorDiv = document.getElementById('loginError');
-            errorDiv.textContent = message;
-            errorDiv.style.display = 'block';
-            setTimeout(() => {
-                errorDiv.style.display = 'none';
-            }, 3000);
-        }
-
-        // Navigation System
-        function showPage(pageName) {
-            // Hide all pages
-            document.querySelectorAll('.page-content').forEach(page => {
-                page.classList.remove('active');
-            });
+        function showApp() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('appScreen').style.display = 'block';
             
-            // Show selected page
-            const targetPage = document.getElementById(pageName + '-page');
-            if (targetPage) {
-                targetPage.classList.add('active');
-                currentPage = pageName;
+            // Update user info
+            if (currentUser) {
+                const initials = currentUser.email.charAt(0).toUpperCase();
+                document.getElementById('userAvatar').textContent = initials;
+                document.getElementById('userName').textContent = currentUser.email.split('@')[0];
+                document.getElementById('userEmail').textContent = currentUser.email;
             }
             
-            // Update navigation
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.classList.remove('active');
-            });
-            const activeLink = document.querySelector(`[data-page="${pageName}"]`);
-            if (activeLink) {
-                activeLink.classList.add('active');
+            // Load initial data
+            loadTodos();
+            updateDashboardStats();
+            initializeCharts();
+        }
+
+        function showLoginMessage(message, type) {
+            const msgDiv = document.getElementById('loginMessage');
+            msgDiv.innerHTML = `<div class="${type}">${message}</div>`;
+        }
+
+        async function loadTodos() {
+            if (!sessionToken) return;
+            
+            try {
+                const headers = {
+                    'Authorization': `Bearer ${sessionToken}`,
+                    'apikey': SUPABASE_KEY,
+                    'Content-Type': 'application/json'
+                };
+                
+                // Load todos
+                const todosResponse = await fetch(`${SUPABASE_URL}/rest/v1/todos?user_id=eq.${userId}&order=updated_at.desc`, { headers });
+                
+                if (todosResponse.ok) {
+                    const todos = await todosResponse.json();
+                    console.log('Loaded', todos.length, 'todos');
+                    
+                    // Load notes for all todos
+                    const notesResponse = await fetch(`${SUPABASE_URL}/rest/v1/todonotes?select=*&order=created_at.asc`, { headers });
+                    
+                    let allNotes = [];
+                    if (notesResponse.ok) {
+                        allNotes = await notesResponse.json();
+                        console.log('Loaded', allNotes.length, 'notes');
+                    }
+                    
+                    // Attach notes to todos
+                    todos.forEach(todo => {
+                        todo.notes = allNotes.filter(note => note.todo_id === todo.id);
+                    });
+                    
+                    allTodos = todos;
+                    displayTodos(allTodos);
+                    updateDashboardStats();
+                } else if (todosResponse.status === 401) {
+                    console.error('Unauthorized - redirecting to login');
+                    localStorage.removeItem('projectflow_session');
+                    showLogin();
+                } else {
+                    console.error('Failed to load todos');
+                    document.getElementById('todosList').innerHTML = '<div class="error">Failed to load tasks</div>';
+                }
+            } catch (error) {
+                console.error('Network error:', error);
+                document.getElementById('todosList').innerHTML = '<div class="error">Network error</div>';
+            }
+        }
+
+        function displayTodos(todos) {
+            const container = document.getElementById('todosList');
+            
+            if (todos.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>🎯 No tasks yet</h3>
+                        <p>Add your first task to get started with productivity tracking!</p>
+                    </div>
+                `;
+                return;
             }
             
-            // Initialize page-specific content
-            if (pageName === 'dashboard') {
-                updateDashboardStats();
-                initTaskChart();
-            } else if (pageName === 'tasks') {
-                loadTasks();
+            container.innerHTML = todos.map(todo => createTodoHTML(todo)).join('');
+        }
+
+        function createTodoHTML(todo) {
+            const createdAt = new Date(todo.created_at).toLocaleDateString();
+            const updatedAt = todo.updated_at ? new Date(todo.updated_at).toLocaleDateString() : createdAt;
+            
+            // Build notes HTML using the original structure
+            let notesHTML = '';
+            if (todo.notes && todo.notes.length > 0) {
+                notesHTML = todo.notes.map(note => {
+                    const noteDate = new Date(note.created_at).toLocaleDateString();
+                    return `<div class="note-item">📝 ${escapeHtml(note.note)} <span class="note-date">(${noteDate})</span></div>`;
+                }).join('');
+            }
+            
+            return `
+                <div class="todo-item ${todo.completed ? 'completed' : ''}">
+                    <div class="todo-main">
+                        <div class="todo-checkbox ${todo.completed ? 'completed' : ''}" 
+                             onclick="toggleTodo('${todo.id}', ${!todo.completed})">
+                            ${todo.completed ? '✓' : ''}
+                        </div>
+                        <div class="todo-content">
+                            <div class="todo-title ${todo.completed ? 'completed' : ''}">${escapeHtml(todo.title)}</div>
+                            <div class="todo-meta">Created: ${createdAt} | Updated: ${updatedAt} | Notes: ${todo.notes ? todo.notes.length : 0}</div>
+                        </div>
+                    </div>
+                    <div class="todo-notes">
+                        ${notesHTML}
+                        <div class="add-note-section">
+                            <input type="text" class="note-input" placeholder="Add a note..." 
+                                   onkeypress="if(event.key==='Enter') addNote('${todo.id}', this.nextElementSibling)">
+                            <button class="add-note-btn" onclick="addNote('${todo.id}', this)">
+                                Add Note
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function handleAddTodo() {
+            const input = document.getElementById('todoInput');
+            const btn = document.getElementById('addBtn');
+            const title = input.value.trim();
+            
+            if (!title || !sessionToken) return;
+            
+            btn.disabled = true;
+            btn.textContent = 'Adding...';
+            
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/todos`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${sessionToken}`,
+                        'apikey': SUPABASE_KEY,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify({
+                        title: title,
+                        user_id: userId,
+                        completed: false,
+                        notes: []
+                    })
+                });
+                
+                if (response.ok) {
+                    input.value = '';
+                    showMessage('Task added successfully!', 'success');
+                    loadTodos();
+                } else {
+                    showMessage('Failed to add task', 'error');
+                }
+            } catch (error) {
+                showMessage('Network error', 'error');
+            }
+            
+            btn.disabled = false;
+            btn.textContent = 'Add Task';
+        }
+
+        async function toggleTodo(todoId, completed) {
+            if (!sessionToken) return;
+            
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/todos?id=eq.${todoId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Bearer ${sessionToken}`,
+                        'apikey': SUPABASE_KEY,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ completed })
+                });
+                
+                if (response.ok) {
+                    showMessage(completed ? 'Task completed!' : 'Task reopened!', 'success');
+                    loadTodos();
+                } else {
+                    showMessage('Failed to update task', 'error');
+                }
+            } catch (error) {
+                showMessage('Network error', 'error');
             }
         }
 
-        function toggleSidebar() {
-            document.querySelector('.nav-sidebar').classList.toggle('collapsed');
+        async function addNote(todoId, buttonElement) {
+            const noteInput = buttonElement.parentElement.querySelector('.note-input');
+            const noteText = noteInput.value.trim();
+            
+            if (!noteText) return;
+
+            buttonElement.disabled = true;
+            buttonElement.textContent = 'Adding...';
+
+            try {
+                const headers = {
+                    "apikey": SUPABASE_KEY,
+                    "Authorization": `Bearer ${sessionToken}`,
+                    "Content-Type": "application/json",
+                    "Prefer": "return=minimal"
+                };
+                
+                const payload = {
+                    todo_id: todoId,
+                    note: noteText
+                };
+                
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/todonotes`, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.status === 201) {
+                    console.log('Note added successfully');
+                    noteInput.value = '';
+                    showMessage('Note added successfully!', 'success');
+                    loadTodos(); // Reload to show the new note
+                } else {
+                    const errorText = await response.text();
+                    throw new Error(`Failed to add note: ${response.status} - ${errorText}`);
+                }
+            } catch (error) {
+                console.error('Add note error:', error);
+                showMessage(`Failed to add note: ${error.message}`, 'error');
+            } finally {
+                buttonElement.disabled = false;
+                buttonElement.textContent = 'Add Note';
+            }
         }
 
-        // Dashboard Functions
         function updateDashboardStats() {
-            const total = tasks.length;
-            const completed = tasks.filter(task => task.completed).length;
+            const total = allTodos.length;
+            const completed = allTodos.filter(todo => todo.completed).length;
             const pending = total - completed;
-            const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+            const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
             
             document.getElementById('totalTasks').textContent = total;
-            document.getElementById('pendingTasks').textContent = pending;
             document.getElementById('completedTasks').textContent = completed;
-            document.getElementById('completionRate').textContent = completionRate + '%';
+            document.getElementById('pendingTasks').textContent = pending;
+            document.getElementById('completionRate').textContent = rate + '%';
+            
+            updateCharts(completed, pending);
         }
 
-        function initTaskChart() {
-            const ctx = document.getElementById('taskChart');
-            if (!ctx) return;
-            
-            if (taskChart) {
-                taskChart.destroy();
-            }
-            
-            const completed = tasks.filter(task => task.completed).length;
-            const pending = tasks.length - completed;
-            
-            taskChart = new Chart(ctx, {
+        function initializeCharts() {
+            // Progress Chart
+            const progressCtx = document.getElementById('progressChart').getContext('2d');
+            progressChart = new Chart(progressCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Pending', 'Completed'],
+                    labels: ['Completed', 'Pending'],
                     datasets: [{
-                        data: tasks.length > 0 ? [pending, completed] : [1, 0],
+                        data: [0, 0],
                         backgroundColor: [
-                            'rgba(255, 193, 7, 0.8)',
-                            'rgba(40, 167, 69, 0.8)'
+                            'rgba(255, 255, 255, 0.8)',
+                            'rgba(255, 255, 255, 0.3)'
                         ],
-                        borderColor: [
-                            'rgba(255, 193, 7, 1)',
-                            'rgba(40, 167, 69, 1)'
-                        ],
-                        borderWidth: 2
+                        borderWidth: 0
                     }]
                 },
                 options: {
@@ -854,9 +1468,50 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            position: 'bottom',
                             labels: {
-                                color: 'rgba(255, 255, 255, 0.8)'
+                                color: 'white'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Distribution Chart
+            const distributionCtx = document.getElementById('distributionChart').getContext('2d');
+            distributionChart = new Chart(distributionCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['This Week'],
+                    datasets: [{
+                        label: 'Completed',
+                        data: [0],
+                        backgroundColor: 'rgba(255, 255, 255, 0.8)'
+                    }, {
+                        label: 'Pending',
+                        data: [0],
+                        backgroundColor: 'rgba(255, 255, 255, 0.3)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'white'
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: 'white'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: 'white'
                             }
                         }
                     }
@@ -864,107 +1519,122 @@
             });
         }
 
-        function updateDateTime() {
-            const now = new Date();
-            const options = { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            };
-            const dateTimeElement = document.getElementById('currentDateTime');
-            if (dateTimeElement) {
-                dateTimeElement.textContent = now.toLocaleDateString('en-US', options);
+        function updateCharts(completed, pending) {
+            if (progressChart) {
+                progressChart.data.datasets[0].data = [completed, pending];
+                progressChart.update();
+            }
+            
+            if (distributionChart) {
+                distributionChart.data.datasets[0].data = [completed];
+                distributionChart.data.datasets[1].data = [pending];
+                distributionChart.update();
             }
         }
 
-        // Task Management (Original Todo Functionality)
-        function addTask() {
-            const taskInput = document.getElementById('taskInput');
-            const taskText = taskInput.value.trim();
+        function handleExport() {
+            if (!allTodos.length) {
+                showMessage('No tasks to export', 'error');
+                return;
+            }
             
-            if (taskText) {
-                const task = {
-                    id: Date.now(),
-                    text: taskText,
-                    completed: false,
-                    createdAt: new Date().toISOString()
-                };
-                
-                tasks.push(task);
-                saveTasks();
-                loadTasks();
-                taskInput.value = '';
-                
-                // Update dashboard if we're on it
-                if (currentPage === 'dashboard') {
-                    updateDashboardStats();
-                    initTaskChart();
-                }
+            // Generate export content
+            let content = `ProjectFlow Export\n`;
+            content += `User: ${currentUser.email}\n`;
+            content += `Generated: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}\n\n`;
+            
+            const activeTodos = allTodos.filter(todo => !todo.completed);
+            const completedTodos = allTodos.filter(todo => todo.completed);
+            
+            if (activeTodos.length > 0) {
+                content += `ACTIVE TASKS (${activeTodos.length})\n`;
+                content += '='.repeat(20) + '\n';
+                activeTodos.forEach((todo, index) => {
+                    content += `${index + 1}. ${todo.title}\n`;
+                    content += `   Created: ${new Date(todo.created_at).toLocaleDateString()}\n`;
+                    if (todo.notes && todo.notes.length > 0) {
+                        content += `   Notes:\n`;
+                        todo.notes.forEach(note => {
+                            content += `   - ${note.note} (${new Date(note.created_at).toLocaleDateString()})\n`;
+                        });
+                    }
+                    content += '\n';
+                });
+            }
+            
+            if (completedTodos.length > 0) {
+                content += `COMPLETED TASKS (${completedTodos.length})\n`;
+                content += '='.repeat(20) + '\n';
+                completedTodos.forEach((todo, index) => {
+                    content += `${index + 1}. ${todo.title}\n`;
+                    content += `   Created: ${new Date(todo.created_at).toLocaleDateString()}\n`;
+                    if (todo.notes && todo.notes.length > 0) {
+                        content += `   Notes:\n`;
+                        todo.notes.forEach(note => {
+                            content += `   - ${note.note} (${new Date(note.created_at).toLocaleDateString()})\n`;
+                        });
+                    }
+                    content += '\n';
+                });
+            }
+            
+            // Try to use native sharing if available
+            if (navigator.share) {
+                navigator.share({
+                    title: 'ProjectFlow Export',
+                    text: content
+                }).catch(() => {
+                    copyToClipboard(content);
+                });
+            } else {
+                copyToClipboard(content);
             }
         }
 
-        function toggleTask(taskId) {
-            const task = tasks.find(t => t.id === taskId);
-            if (task) {
-                task.completed = !task.completed;
-                saveTasks();
-                loadTasks();
-                
-                // Update dashboard if we're on it
-                if (currentPage === 'dashboard') {
-                    updateDashboardStats();
-                    initTaskChart();
-                }
+        function copyToClipboard(text) {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showMessage('Export copied to clipboard!', 'success');
+                }).catch(() => {
+                    fallbackCopy(text);
+                });
+            } else {
+                fallbackCopy(text);
             }
         }
 
-        function deleteTask(taskId) {
-            tasks = tasks.filter(t => t.id !== taskId);
-            saveTasks();
-            loadTasks();
-            
-            // Update dashboard if we're on it
-            if (currentPage === 'dashboard') {
-                updateDashboardStats();
-                initTaskChart();
+        function fallbackCopy(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.opacity = '0';
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showMessage('Export copied to clipboard!', 'success');
+            } catch (err) {
+                showMessage('Could not copy export. Please select and copy manually.', 'error');
+                textArea.style.opacity = '1';
+                textArea.style.position = 'static';
             }
+            document.body.removeChild(textArea);
         }
 
-        function loadTasks() {
-            const taskList = document.getElementById('taskList');
-            if (!taskList) return;
+        function showMessage(text, type) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.className = `show ${type}`;
             
-            taskList.innerHTML = '';
-            
-            tasks.forEach(task => {
-                const taskElement = document.createElement('div');
-                taskElement.className = `task-item ${task.completed ? 'completed' : ''}`;
-                taskElement.innerHTML = `
-                    <input type="checkbox" ${task.completed ? 'checked' : ''} 
-                           onchange="toggleTask(${task.id})" style="margin-right: 1rem;">
-                    <span style="flex: 1; color: var(--text-color);">${task.text}</span>
-                    <button onclick="deleteTask(${task.id})" 
-                            style="background: rgba(220, 53, 69, 0.2); border: none; color: #dc3545; 
-                                   padding: 0.5rem; border-radius: 5px; cursor: pointer;">
-                        🗑️
-                    </button>
-                `;
-                taskList.appendChild(taskElement);
-            });
+            setTimeout(() => {
+                messageEl.classList.remove('show');
+            }, 3000);
         }
 
-        function saveTasks() {
-            localStorage.setItem('tasks', JSON.stringify(tasks));
-        }
-
-        // Theme System
-        function changeTheme() {
-            const theme = document.getElementById('themeSelect').value;
-            document.body.className = theme + '-theme';
-            localStorage.setItem('theme', theme);
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
     </script>
 </body>
