@@ -1726,10 +1726,6 @@
             // Save theme preference
             localStorage.setItem('projectflow_theme', selectedTheme);
             
-            // Show visual feedback
-            const themeName = selectedTheme === 'dark' ? 'Dark Mode' : 'Ocean Breeze';
-            showMessage(`Switched to ${themeName} theme! 🎨`, 'success');
-            
             console.log('Theme changed to:', selectedTheme);
         }
 
