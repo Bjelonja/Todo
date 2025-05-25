@@ -635,6 +635,42 @@
             font-weight: 600;
         }
 
+        .todos-title-section {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .task-summary {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .summary-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .summary-count {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        .summary-divider {
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: bold;
+        }
+
         .export-btn {
             background: rgba(255, 255, 255, 0.1);
             color: white;
@@ -724,6 +760,15 @@
         .todo-meta {
             color: rgba(255, 255, 255, 0.7);
             font-size: 0.9rem;
+        }
+
+        .last-modified {
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+        }
+
+        .note-count {
+            color: rgba(255, 255, 255, 0.6);
         }
 
         /* Notes Styles */
@@ -816,6 +861,83 @@
             color: rgba(255, 255, 255, 0.8);
             margin-bottom: 1rem;
             font-size: 1.3rem;
+        }
+
+        /* Task Section Styles */
+        .task-section {
+            margin-bottom: 2rem;
+        }
+
+        .task-section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .task-section-header.active-header {
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.2), rgba(255, 193, 7, 0.1));
+            border-color: rgba(255, 193, 7, 0.3);
+        }
+
+        .task-section-header.completed-header {
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.2), rgba(40, 167, 69, 0.1));
+            border-color: rgba(40, 167, 69, 0.3);
+        }
+
+        .task-section-header h3 {
+            margin: 0;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .task-count {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .task-section-content {
+            margin-left: 0.5rem;
+            margin-right: 0.5rem;
+        }
+
+        .task-section-content .todo-item {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .completed-empty-state {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+        }
+
+        .completed-empty-state p {
+            color: rgba(255, 255, 255, 0.6);
+            margin: 0;
+            font-style: italic;
         }
 
         /* Message Styles */
@@ -1369,7 +1491,18 @@
 
                     <div class="todos-container">
                         <div class="todos-header">
-                            <h2>Your Tasks</h2>
+                            <div class="todos-title-section">
+                                <h2>Your Tasks</h2>
+                                <div class="task-summary" id="taskSummary">
+                                    <span class="summary-item">
+                                        <span class="summary-count" id="activeSummaryCount">0</span> Active
+                                    </span>
+                                    <span class="summary-divider">•</span>
+                                    <span class="summary-item">
+                                        <span class="summary-count" id="completedSummaryCount">0</span> Completed
+                                    </span>
+                                </div>
+                            </div>
                             <button class="export-btn" id="exportBtn">
                                 <span>📄</span>
                                 Export
@@ -1835,15 +1968,80 @@
                         <p>Add your first task to get started with productivity tracking!</p>
                     </div>
                 `;
+                // Update summary counters
+                document.getElementById('activeSummaryCount').textContent = '0';
+                document.getElementById('completedSummaryCount').textContent = '0';
                 return;
             }
             
-            container.innerHTML = todos.map(todo => createTodoHTML(todo)).join('');
+            // Separate active and completed tasks
+            const activeTodos = todos.filter(todo => !todo.completed);
+            const completedTodos = todos.filter(todo => todo.completed);
+            
+            // Update summary counters
+            document.getElementById('activeSummaryCount').textContent = activeTodos.length;
+            document.getElementById('completedSummaryCount').textContent = completedTodos.length;
+            
+            // Sort both sections by most recently modified first (updated_at desc)
+            const sortByModified = (a, b) => {
+                const aTime = new Date(a.updated_at || a.created_at).getTime();
+                const bTime = new Date(b.updated_at || b.created_at).getTime();
+                return bTime - aTime;
+            };
+            
+            activeTodos.sort(sortByModified);
+            completedTodos.sort(sortByModified);
+            
+            let html = '';
+            
+            // Active Tasks Section
+            if (activeTodos.length > 0) {
+                html += `
+                    <div class="task-section">
+                        <div class="task-section-header active-header">
+                            <h3>🔄 Active Tasks</h3>
+                            <span class="task-count">${activeTodos.length}</span>
+                        </div>
+                        <div class="task-section-content">
+                            ${activeTodos.map(todo => createTodoHTML(todo)).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Completed Tasks Section
+            if (completedTodos.length > 0) {
+                html += `
+                    <div class="task-section">
+                        <div class="task-section-header completed-header">
+                            <h3>✅ Completed Tasks</h3>
+                            <span class="task-count">${completedTodos.length}</span>
+                        </div>
+                        <div class="task-section-content">
+                            ${completedTodos.map(todo => createTodoHTML(todo)).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // If only active tasks exist, show a message about completion
+            if (activeTodos.length > 0 && completedTodos.length === 0) {
+                html += `
+                    <div class="task-section">
+                        <div class="completed-empty-state">
+                            <p>🎯 Complete some tasks to see them here!</p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = html;
         }
 
         function createTodoHTML(todo) {
             const createdAt = new Date(todo.created_at).toLocaleDateString();
             const updatedAt = todo.updated_at ? new Date(todo.updated_at).toLocaleDateString() : createdAt;
+            const lastModified = getRelativeTime(todo.updated_at || todo.created_at);
             
             // Build notes HTML using the original structure
             let notesHTML = '';
@@ -1863,7 +2061,10 @@
                         </div>
                         <div class="todo-content">
                             <div class="todo-title ${todo.completed ? 'completed' : ''}">${escapeHtml(todo.title)}</div>
-                            <div class="todo-meta">Created: ${createdAt} | Updated: ${updatedAt} | Notes: ${todo.notes ? todo.notes.length : 0}</div>
+                            <div class="todo-meta">
+                                <span class="last-modified">📅 ${lastModified}</span> | 
+                                <span class="note-count">📝 ${todo.notes ? todo.notes.length : 0} notes</span>
+                            </div>
                         </div>
                     </div>
                     <div class="todo-notes">
@@ -2491,6 +2692,18 @@
             setTimeout(() => {
                 messageEl.classList.remove('show');
             }, 3000);
+        }
+
+        function getRelativeTime(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffInSeconds = Math.floor((now - date) / 1000);
+            
+            if (diffInSeconds < 60) return 'Just now';
+            if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+            if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+            if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+            return date.toLocaleDateString();
         }
 
         function escapeHtml(text) {
