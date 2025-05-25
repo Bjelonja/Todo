@@ -1456,9 +1456,7 @@
             // Mobile menu setup with enhanced detection
             const mobileMenuBtn = document.getElementById('mobileMenuBtn');
             if (mobileMenuBtn) {
-                alert('Mobile menu button found! Adding event listener...');
                 mobileMenuBtn.addEventListener('click', function(e) {
-                    alert('Click event triggered!');
                     e.preventDefault();
                     e.stopPropagation();
                     toggleMobileMenu();
@@ -1469,8 +1467,6 @@
                     mobileMenuBtn.style.position = 'fixed';
                     mobileMenuBtn.style.zIndex = '1001';
                 }
-            } else {
-                alert('ERROR: Mobile menu button not found in DOM!');
             }
             
             // Setup mobile backdrop click handler
@@ -1529,22 +1525,16 @@
         }
 
         function toggleMobileMenu() {
-            // Debug: Show alert to confirm function is called
-            alert('toggleMobileMenu function called!');
-            
             const sidebar = document.getElementById('sidebar');
             const menuBtn = document.getElementById('mobileMenuBtn');
             const backdrop = document.getElementById('mobileBackdrop');
             
             if (!sidebar || !menuBtn) {
-                alert('Error: sidebar or menuBtn not found!');
                 return;
             }
             
             const isCurrentlyOpen = sidebar.classList.contains('open');
             const isOpening = !isCurrentlyOpen;
-            
-            alert(`Menu is currently ${isCurrentlyOpen ? 'OPEN' : 'CLOSED'}, now ${isOpening ? 'OPENING' : 'CLOSING'}`);
             
             // Enhanced sidebar control with inline styles as backup
             if (isOpening) {
