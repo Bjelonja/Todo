@@ -3,20 +3,402 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mobile Menu Test</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#667eea">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>ProjectFlow - Professional Task Management</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --accent-color: #f093fb;
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f7fafc;
+            --border-color: #e2e8f0;
+            --shadow-light: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-medium: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-large: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #4a5568;
+            --secondary-color: #2d3748;
+            --accent-color: #1a202c;
+            --text-primary: #f7fafc;
+            --text-secondary: #e2e8f0;
+            --bg-primary: #1a202c;
+            --bg-secondary: #2d3748;
+            --border-color: #4a5568;
+            --shadow-light: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            --shadow-medium: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            --shadow-large: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 50%, var(--accent-color) 100%);
             min-height: 100vh;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            overflow-x: hidden;
+        }
+
+        /* Login Screen Styles */
+        .login-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-card {
+            backdrop-filter: blur(20px);
+            padding: 3rem;
+            border-radius: 24px;
+            box-shadow: var(--shadow-large);
+            width: 100%;
+            max-width: 420px;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        /* Light theme login card */
+        :root .login-card {
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        /* Dark theme login card */
+        [data-theme="dark"] .login-card {
+            background: rgba(26, 32, 44, 0.95);
+        }
+
+        .login-card h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            min-height: 44px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            -webkit-appearance: none;
+            appearance: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .login-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 44px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error, .success {
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .error {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
             color: white;
         }
 
+        .success {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        /* Main App Layout */
+        .app-screen {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .app-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        /* Light theme sidebar */
+        :root .sidebar {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Dark theme sidebar */
+        [data-theme="dark"] .sidebar {
+            background: rgba(26, 32, 44, 0.8);
+            border-right: 1px solid rgba(74, 85, 104, 0.3);
+        }
+
+        .sidebar-header {
+            padding: 0 2rem 2rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-header h1 {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ffffff, #f0f0f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .sidebar-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0 1rem;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-weight: 600;
+        }
+
+        .nav-icon {
+            margin-right: 1rem;
+            font-size: 1.2rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .user-section {
+            position: absolute;
+            bottom: 2rem;
+            left: 2rem;
+            right: 2rem;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+
+        .user-details h3 {
+            color: white;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .user-details p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.8rem;
+        }
+
+        .logout-btn {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        /* Theme Selector */
+        .theme-selector {
+            margin-bottom: 1rem;
+        }
+
+        .theme-selector label {
+            display: block;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .theme-selector select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-selector select:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .theme-selector select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Dark theme adjustments for theme selector */
+        [data-theme="dark"] .theme-selector select {
+            background: rgba(74, 85, 104, 0.5);
+            border-color: rgba(74, 85, 104, 0.7);
+        }
+
+        [data-theme="dark"] .theme-selector select:hover {
+            background: rgba(74, 85, 104, 0.7);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 2rem;
+            min-height: 100vh;
+            max-width: calc(100vw - 280px);
+            overflow-x: hidden;
+        }
+
+        /* Mobile Menu Button - Hidden by default */
         .mobile-menu-btn {
-            display: block !important;
-            position: fixed !important;
+            display: none;
+            position: fixed;
             top: 1rem;
             left: 1rem;
             z-index: 1001;
@@ -26,14 +408,16 @@
             padding: 0.75rem;
             border-radius: 12px;
             cursor: pointer;
+            backdrop-filter: blur(10px);
             border: 2px solid rgba(255, 255, 255, 0.3);
             min-height: 44px;
             min-width: 44px;
-            display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             gap: 3px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
             transition: all 0.3s ease;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
@@ -47,77 +431,2038 @@
             transition: all 0.3s ease;
         }
 
-        .content {
-            padding: 2rem;
-            padding-top: 5rem;
+        .mobile-menu-btn.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
         }
 
-        .info {
+        .mobile-menu-btn.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .mobile-menu-btn.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+        .page {
+            display: none;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .page-header {
             background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .page-title {
+            color: white;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-description {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-large);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .chart-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            height: 350px;
+            max-height: 350px;
+            overflow: hidden;
+        }
+
+        .chart-title {
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 250px;
+            max-height: 250px;
+            width: 100%;
+        }
+
+        .chart-wrapper canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100% !important;
+            height: 100% !important;
+            max-height: 250px !important;
+        }
+
+        /* Tasks Page Styles */
+        .add-todo-form {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .add-todo-input {
+            flex: 1;
+            padding: 16px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            min-height: 44px;
+            -webkit-appearance: none;
+            appearance: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .add-todo-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .add-todo-input:focus {
+            outline: none;
+            border-color: white;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .add-btn {
+            background: linear-gradient(135deg, white, #f0f0f0);
+            color: var(--primary-color);
+            border: none;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            min-height: 44px;
+            font-size: 1rem;
+        }
+
+        .add-btn:hover {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .add-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .todos-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .todos-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .todos-header h2 {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .export-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .export-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .todo-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .todo-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .todo-item.completed {
+            opacity: 0.7;
+        }
+
+        .todo-main {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .todo-checkbox {
+            width: 28px;
+            height: 28px;
+            border: 2px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            font-weight: bold;
+            min-width: 28px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        .todo-checkbox.completed {
+            background: white;
+            color: var(--primary-color);
+        }
+
+        .todo-content {
+            flex: 1;
+            min-height: 44px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .todo-title {
+            font-size: 1.1rem;
+            color: white;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .todo-title.completed {
+            text-decoration: line-through;
+        }
+
+        .todo-meta {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        /* Notes Styles */
+        .todo-notes {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .note-item {
+            background: rgba(255, 255, 255, 0.05);
             padding: 1rem;
             border-radius: 10px;
-            margin: 1rem 0;
+            margin-bottom: 0.75rem;
+            border-left: 3px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .note-content {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+
+        .note-date {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.8rem;
+        }
+
+        .add-note-section {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .note-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .note-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .note-input:focus {
+            outline: none;
+            border-color: white;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .add-note-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 12px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .add-note-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .add-note-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            padding: 2rem;
+            font-style: italic;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            padding: 3rem 2rem;
+        }
+
+        .empty-state h3 {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        /* Message Styles */
+        #message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            z-index: 10000;
+            max-width: 300px;
+            box-shadow: var(--shadow-large);
+            transform: translateX(400px);
+            transition: all 0.3s ease;
+        }
+
+        #message.show {
+            transform: translateX(0);
+        }
+
+        #message.success {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+        }
+
+        #message.error {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+        }
+
+        /* Allow text selection for inputs and content */
+        input, textarea, .todo-title, .note-content {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            body {
+                width: 100vw;
+                max-width: 100vw;
+                min-width: 100vw;
+                margin: 0;
+                padding: 0;
+                -webkit-text-size-adjust: 100%;
+                -ms-text-size-adjust: 100%;
+            }
+
+            .app-layout {
+                width: 100vw;
+                max-width: 100vw;
+                overflow-x: hidden;
+            }
+
+            .sidebar {
+                transform: translateX(-105%);
+                width: 85vw;
+                max-width: 300px;
+                min-width: 280px;
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                z-index: 1000;
+                box-shadow: none;
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+                width: 100vw;
+                max-width: 100vw;
+                min-height: 100vh;
+                overflow-x: hidden;
+                padding-top: 4rem; /* Space for mobile menu button */
+            }
+
+            .mobile-menu-btn {
+                display: block !important;
+                position: fixed !important;
+                top: 1rem;
+                left: 1rem;
+                z-index: 1001;
+                background: rgba(102, 126, 234, 0.9) !important;
+                border: none;
+                color: white;
+                padding: 0.75rem;
+                border-radius: 12px;
+                cursor: pointer;
+                backdrop-filter: blur(10px);
+                border: 2px solid rgba(255, 255, 255, 0.3);
+                min-height: 44px;
+                min-width: 44px;
+                display: flex !important;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 3px;
+                -webkit-tap-highlight-color: transparent;
+                touch-action: manipulation;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            }
+
+            .mobile-menu-btn:hover {
+                background: rgba(255, 255, 255, 0.3);
+            }
+
+            .mobile-menu-btn span {
+                display: block;
+                width: 20px;
+                height: 2px;
+                background: white;
+                border-radius: 1px;
+                transition: all 0.3s ease;
+            }
+
+            .mobile-menu-btn.active span:nth-child(1) {
+                transform: rotate(45deg) translate(5px, 5px);
+            }
+
+            .mobile-menu-btn.active span:nth-child(2) {
+                opacity: 0;
+            }
+
+            .mobile-menu-btn.active span:nth-child(3) {
+                transform: rotate(-45deg) translate(7px, -6px);
+            }
+
+            /* Mobile Backdrop */
+            #mobileBackdrop {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                width: 100vw;
+                height: 100vh;
+                background: rgba(0, 0, 0, 0.6);
+                z-index: 999;
+                backdrop-filter: blur(3px);
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+
+            .login-card {
+                padding: 2rem;
+                margin: 1rem;
+                max-width: calc(100vw - 2rem);
+                min-width: auto;
+            }
+
+            .form-row {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .add-todo-input {
+                width: 100%;
+                margin-bottom: 1rem;
+            }
+
+            .add-btn {
+                width: 100%;
+                margin-top: 0;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .todos-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+
+            .add-note-section {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .note-input {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+
+            .add-note-btn {
+                width: 100%;
+            }
+
+            .page-header {
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+            }
+
+            .chart-container {
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .chart-wrapper {
+                height: 200px;
+                max-height: 200px;
+            }
+
+            .stat-card {
+                padding: 1.5rem;
+            }
+
+            .stat-number {
+                font-size: 2rem;
+            }
+
+            .todo-item {
+                padding: 1rem;
+                margin-bottom: 0.75rem;
+            }
+
+            .todo-main {
+                gap: 0.75rem;
+                margin-bottom: 0.75rem;
+            }
+
+            .user-section {
+                position: relative;
+                bottom: auto;
+                left: auto;
+                right: auto;
+                margin: 2rem 1rem 1rem 1rem;
+            }
+
+            /* Prevent horizontal scrolling */
+            * {
+                max-width: 100vw;
+                box-sizing: border-box;
+            }
+
+            .export-modal-content {
+                margin: 1rem;
+                max-width: calc(100vw - 2rem);
+                min-width: auto;
+            }
+
+            .export-option-btn,
+            .export-cancel-btn {
+                padding: 18px !important;
+                font-size: 18px !important;
+                min-height: 50px;
+                -webkit-tap-highlight-color: transparent;
+                touch-action: manipulation;
+            }
+        }
+
+        /* Additional mobile fixes */
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 0.75rem;
+            }
+            
+            .mobile-menu-btn {
+                display: block !important;
+                position: fixed !important;
+                top: 0.5rem;
+                left: 0.5rem;
+                background: rgba(102, 126, 234, 0.95) !important;
+                border: 2px solid white !important;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+            }
+        }
+
+        /* Force mobile menu on touch devices */
+        @media (pointer: coarse) {
+            .mobile-menu-btn {
+                display: block !important;
+            }
+            
+            .sidebar {
+                transform: translateX(-100%);
+            }
+        }
+
+        /* Additional mobile styling */
+        @media (max-width: 480px) {
+            .page-header {
+                padding: 1rem;
+            }
+
+            .add-todo-form,
+            .todos-container,
+            .chart-container {
+                padding: 1rem;
+            }
+
+            .todo-item {
+                padding: 0.75rem;
+            }
+
+            .stat-card {
+                padding: 1rem;
+            }
+
+            .login-card {
+                padding: 1.5rem;
+            }
+
+            .form-group input {
+                padding: 14px 16px;
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+
+            .add-todo-input {
+                padding: 14px 16px;
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+
+            .note-input {
+                padding: 10px 14px;
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+        }
+
+        .mobile-menu-btn {
+            display: none;
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            
+            .sidebar, .mobile-menu-btn, .export-btn, .add-todo-form, #message {
+                display: none !important;
+            }
+            
+            .main-content {
+                margin-left: 0 !important;
+                padding: 0 !important;
+            }
+            
+            .page-header {
+                background: none !important;
+                backdrop-filter: none !important;
+                border: none !important;
+                padding: 1rem 0 !important;
+            }
+            
+            .todos-container {
+                background: none !important;
+                backdrop-filter: none !important;
+                border: none !important;
+                padding: 0 !important;
+            }
+            
+            .todo-item {
+                background: none !important;
+                border: 1px solid #ddd !important;
+                break-inside: avoid;
+            }
+            
+            .todo-title {
+                color: black !important;
+            }
+            
+            .todo-meta, .note-content {
+                color: #666 !important;
+            }
         }
     </style>
 </head>
 <body>
-    <button class="mobile-menu-btn" onclick="alert('Mobile menu button clicked!')">
-        <span></span>
-        <span></span>
-        <span></span>
-    </button>
-
-    <div class="content">
-        <h1>Mobile Menu Test</h1>
-        <div class="info">
-            <h3>Testing Mobile Button Visibility</h3>
-            <p><strong>Screen Width:</strong> <span id="screenWidth"></span>px</p>
-            <p><strong>Is Touch Device:</strong> <span id="touchDevice"></span></p>
-            <p><strong>User Agent:</strong> <span id="userAgent"></span></p>
-        </div>
-
-        <div class="info">
-            <h3>What You Should See:</h3>
-            <ul>
-                <li>A hamburger menu button (☰) in the top-left corner</li>
-                <li>Button should be visible and clickable</li>
-                <li>When tapped, it should show an alert</li>
-            </ul>
-        </div>
-
-        <div class="info">
-            <h3>Button Status:</h3>
-            <p id="buttonStatus">Checking...</p>
+    <!-- Mobile Backdrop -->
+    <div id="mobileBackdrop" class="mobile-backdrop"></div>
+    
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-card">
+            <h1>ProjectFlow</h1>
+            <div id="loginMessage"></div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="login-btn" id="loginBtn">
+                    Sign In
+                </button>
+            </form>
         </div>
     </div>
 
-    <script>
-        // Display device info
-        document.getElementById('screenWidth').textContent = window.innerWidth;
-        document.getElementById('touchDevice').textContent = 'ontouchstart' in window ? 'Yes' : 'No';
-        document.getElementById('userAgent').textContent = navigator.userAgent.substring(0, 60) + '...';
+    <!-- Main App Screen -->
+    <div id="appScreen" class="app-screen">
+        <div class="app-layout">
+            <!-- Sidebar -->
+            <nav class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <h1>ProjectFlow</h1>
+                    <p class="sidebar-subtitle">Professional Task Management</p>
+                </div>
+                
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active" data-page="dashboard">
+                            <span class="nav-icon">📊</span>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-page="projects">
+                            <span class="nav-icon">📁</span>
+                            Projects
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-page="tasks">
+                            <span class="nav-icon">✅</span>
+                            Tasks
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-page="clients">
+                            <span class="nav-icon">👥</span>
+                            Clients
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-page="ai">
+                            <span class="nav-icon">🤖</span>
+                            AI Assistant
+                        </a>
+                    </li>
+                </ul>
 
-        // Check button visibility
-        const button = document.querySelector('.mobile-menu-btn');
-        const buttonStatus = document.getElementById('buttonStatus');
-        
-        if (button) {
-            const styles = window.getComputedStyle(button);
-            buttonStatus.innerHTML = `
-                <strong>Button Found:</strong> Yes<br>
-                <strong>Display:</strong> ${styles.display}<br>
-                <strong>Position:</strong> ${styles.position}<br>
-                <strong>Z-Index:</strong> ${styles.zIndex}<br>
-                <strong>Background:</strong> ${styles.backgroundColor}
-            `;
-        } else {
-            buttonStatus.innerHTML = '<strong>Button Found:</strong> No';
+                <div class="user-section">
+                    <div class="user-info">
+                        <div class="user-avatar" id="userAvatar">U</div>
+                        <div class="user-details">
+                            <h3 id="userName">User</h3>
+                            <p id="userEmail">user@email.com</p>
+                        </div>
+                    </div>
+                    <div class="theme-selector">
+                        <label for="themeSelect">🎨 Theme:</label>
+                        <select id="themeSelect" onchange="changeTheme()">
+                            <option value="light">🌊 Ocean Breeze</option>
+                            <option value="dark">🌙 Dark Mode</option>
+                        </select>
+                    </div>
+                    <button class="logout-btn" id="logoutBtn">Sign Out</button>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <!-- Mobile Menu Button -->
+                <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleMobileMenu()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                
+                <!-- Dashboard Page -->
+                <div id="dashboardPage" class="page active">
+                    <div class="page-header">
+                        <h1 class="page-title">Dashboard</h1>
+                        <p class="page-description">Overview of your tasks and productivity metrics</p>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalTasks">0</div>
+                            <div class="stat-label">Total Tasks</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="completedTasks">0</div>
+                            <div class="stat-label">Completed</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="pendingTasks">0</div>
+                            <div class="stat-label">Pending</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="completionRate">0%</div>
+                            <div class="stat-label">Completion Rate</div>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3 class="chart-title">Task Completion Progress</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="progressChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3 class="chart-title">Task Distribution</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="distributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tasks Page -->
+                <div id="tasksPage" class="page">
+                    <div class="page-header">
+                        <h1 class="page-title">Tasks</h1>
+                        <p class="page-description">Manage your tasks and add detailed notes</p>
+                    </div>
+
+                    <div class="add-todo-form">
+                        <div class="form-row">
+                            <input type="text" class="add-todo-input" id="todoInput" placeholder="Add a new task...">
+                            <button class="add-btn" id="addBtn">Add Task</button>
+                        </div>
+                    </div>
+
+                    <div class="todos-container">
+                        <div class="todos-header">
+                            <h2>Your Tasks</h2>
+                            <button class="export-btn" id="exportBtn">
+                                <span>📄</span>
+                                Export
+                            </button>
+                        </div>
+                        <div id="todosList">
+                            <div class="loading">Loading your tasks...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Projects Page -->
+                <div id="projectsPage" class="page">
+                    <div class="page-header">
+                        <h1 class="page-title">Projects</h1>
+                        <p class="page-description">Organize tasks into projects for better management</p>
+                    </div>
+                    <div style="text-align: center; padding: 4rem 2rem; color: rgba(255,255,255,0.7);">
+                        <h3 style="margin-bottom: 1rem; color: rgba(255,255,255,0.9);">🚀 Coming Soon</h3>
+                        <p>Project management features will be available in the next update.</p>
+                    </div>
+                </div>
+
+                <!-- Clients Page -->
+                <div id="clientsPage" class="page">
+                    <div class="page-header">
+                        <h1 class="page-title">Clients</h1>
+                        <p class="page-description">Manage client information and project assignments</p>
+                    </div>
+                    <div style="text-align: center; padding: 4rem 2rem; color: rgba(255,255,255,0.7);">
+                        <h3 style="margin-bottom: 1rem; color: rgba(255,255,255,0.9);">👥 Coming Soon</h3>
+                        <p>Client management features will be available in the next update.</p>
+                    </div>
+                </div>
+
+                <!-- AI Assistant Page -->
+                <div id="aiPage" class="page">
+                    <div class="page-header">
+                        <h1 class="page-title">AI Assistant</h1>
+                        <p class="page-description">Get intelligent suggestions and task automation</p>
+                    </div>
+                    <div style="text-align: center; padding: 4rem 2rem; color: rgba(255,255,255,0.7);">
+                        <h3 style="margin-bottom: 1rem; color: rgba(255,255,255,0.9);">🤖 Coming Soon</h3>
+                        <p>AI-powered task management and suggestions will be available soon.</p>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Message Container -->
+    <div id="message"></div>
+
+    <script>
+        // Configuration
+        const SUPABASE_URL = 'https://vkgtkddfjsztgoffrpjv.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZrZ3RrZGRmanN6dGdvZmZycGp2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc4NDcyNTQsImV4cCI6MjA2MzQyMzI1NH0.fVYGSgkBA2Oe1V5NhxDdVhqV4QDeA3JC90N2tkM8Syc';
+
+        // Global variables
+        let currentUser = null;
+        let sessionToken = null;
+        let userId = null;
+        let allTodos = [];
+        let progressChart = null;
+        let distributionChart = null;
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTheme();
+            setupEventListeners();
+            configureMobileInterface();
+            checkAuthState();
+        });
+
+        function setupEventListeners() {
+            // Login form
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            
+            // Navigation
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', handleNavigation);
+            });
+
+            // Mobile menu setup with enhanced detection
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            if (mobileMenuBtn) {
+                mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+                // Force visibility on mobile devices
+                if (window.innerWidth <= 768 || 'ontouchstart' in window) {
+                    mobileMenuBtn.style.display = 'flex';
+                    mobileMenuBtn.style.position = 'fixed';
+                    mobileMenuBtn.style.zIndex = '1001';
+                }
+            }
+            
+            // Setup mobile backdrop click handler
+            const mobileBackdrop = document.getElementById('mobileBackdrop');
+            if (mobileBackdrop) {
+                mobileBackdrop.addEventListener('click', function() {
+                    toggleMobileMenu();
+                });
+            }
+            
+            // Logout
+            document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+            
+            // Add todo
+            document.getElementById('addBtn').addEventListener('click', handleAddTodo);
+            document.getElementById('todoInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') handleAddTodo();
+            });
+
+            // Export
+            document.getElementById('exportBtn').addEventListener('click', handleExport);
+
+            // Close sidebar on mobile when clicking outside
+            document.addEventListener('click', function(e) {
+                const sidebar = document.getElementById('sidebar');
+                const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+                
+                if (window.innerWidth <= 768 && 
+                    sidebar.classList.contains('open') && 
+                    !sidebar.contains(e.target) && 
+                    !mobileMenuBtn.contains(e.target)) {
+                    sidebar.classList.remove('open');
+                    mobileMenuBtn.classList.remove('active');
+                }
+            });
+
+            // Handle window resize and orientation changes
+            window.addEventListener('resize', function() {
+                const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+                if (mobileMenuBtn) {
+                    if (window.innerWidth <= 768) {
+                        mobileMenuBtn.style.display = 'flex';
+                        mobileMenuBtn.style.position = 'fixed';
+                        mobileMenuBtn.style.zIndex = '1001';
+                    } else {
+                        mobileMenuBtn.style.display = 'none';
+                        // Close mobile menu if open
+                        const sidebar = document.getElementById('sidebar');
+                        if (sidebar) {
+                            sidebar.classList.remove('open');
+                            mobileMenuBtn.classList.remove('active');
+                        }
+                    }
+                }
+            });
         }
 
-        // Update screen width on resize
-        window.addEventListener('resize', () => {
-            document.getElementById('screenWidth').textContent = window.innerWidth;
-        });
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const menuBtn = document.getElementById('mobileMenuBtn');
+            const backdrop = document.getElementById('mobileBackdrop');
+            
+            // Small test alert message for debugging - remove after testing
+            const testPopup = document.createElement('div');
+            testPopup.style.position = 'fixed';
+            testPopup.style.bottom = '20px';
+            testPopup.style.left = '50%';
+            testPopup.style.transform = 'translateX(-50%)';
+            testPopup.style.background = 'rgba(0,0,0,0.8)';
+            testPopup.style.color = 'white';
+            testPopup.style.padding = '10px';
+            testPopup.style.borderRadius = '5px';
+            testPopup.style.zIndex = '9999';
+            testPopup.textContent = sidebar && sidebar.classList.contains('open') ? 'Closing Menu...' : 'Opening Menu...';
+            document.body.appendChild(testPopup);
+            setTimeout(() => document.body.removeChild(testPopup), 2000);
+            
+            if (sidebar && menuBtn) {
+                const isOpening = !sidebar.classList.contains('open');
+                
+                sidebar.classList.toggle('open');
+                menuBtn.classList.toggle('active');
+                
+                // Handle backdrop
+                if (backdrop) {
+                    if (isOpening) {
+                        backdrop.style.display = 'block';
+                        setTimeout(() => backdrop.style.opacity = '1', 10);
+                    } else {
+                        backdrop.style.opacity = '0';
+                        setTimeout(() => backdrop.style.display = 'none', 300);
+                    }
+                }
+                
+                console.log('Mobile menu toggled. Open:', isOpening);
+            }
+        }
+
+        function configureMobileInterface() {
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const isMobile = window.innerWidth <= 768 || 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            
+            if (mobileMenuBtn && isMobile) {
+                // Force show mobile menu button
+                mobileMenuBtn.style.display = 'flex';
+                mobileMenuBtn.style.position = 'fixed';
+                mobileMenuBtn.style.top = '1rem';
+                mobileMenuBtn.style.left = '1rem';
+                mobileMenuBtn.style.zIndex = '1001';
+                mobileMenuBtn.style.background = 'rgba(102, 126, 234, 0.9)';
+                mobileMenuBtn.style.border = '2px solid rgba(255, 255, 255, 0.3)';
+                mobileMenuBtn.style.borderRadius = '12px';
+                mobileMenuBtn.style.padding = '0.75rem';
+                mobileMenuBtn.style.color = 'white';
+                mobileMenuBtn.style.minHeight = '44px';
+                mobileMenuBtn.style.minWidth = '44px';
+                mobileMenuBtn.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
+                
+                console.log('Mobile menu button configured for mobile device');
+            }
+        }
+
+        function handleNavigation(e) {
+            e.preventDefault();
+            const targetPage = e.target.closest('.nav-link').dataset.page;
+            
+            // Update active nav link
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            e.target.closest('.nav-link').classList.add('active');
+            
+            // Show target page
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById(targetPage + 'Page').classList.add('active');
+            
+            // Close mobile menu
+            if (window.innerWidth <= 768) {
+                const sidebar = document.getElementById('sidebar');
+                const menuBtn = document.getElementById('mobileMenuBtn');
+                sidebar.classList.remove('open');
+                if (menuBtn) menuBtn.classList.remove('active');
+            }
+
+            // Load page-specific data
+            if (targetPage === 'dashboard') {
+                updateDashboardStats();
+            } else if (targetPage === 'tasks') {
+                loadTodos();
+            }
+        }
+
+        function checkAuthState() {
+            const stored = localStorage.getItem('projectflow_session');
+            if (stored) {
+                try {
+                    const session = JSON.parse(stored);
+                    if (session.expires > Date.now()) {
+                        currentUser = session.user;
+                        sessionToken = session.token;
+                        userId = session.userId;
+                        showApp();
+                        return;
+                    }
+                } catch (e) {
+                    console.error('Invalid stored session');
+                }
+            }
+            showLogin();
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const btn = document.getElementById('loginBtn');
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            btn.disabled = true;
+            btn.textContent = 'Signing in...';
+            
+            try {
+                const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_KEY
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    currentUser = data.user;
+                    sessionToken = data.access_token;
+                    userId = data.user.id;
+                    
+                    // Store session
+                    localStorage.setItem('projectflow_session', JSON.stringify({
+                        user: currentUser,
+                        token: sessionToken,
+                        userId: userId,
+                        expires: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
+                    }));
+                    
+                    showApp();
+                } else {
+                    const error = await response.json();
+                    showLoginMessage(error.error_description || 'Login failed', 'error');
+                }
+            } catch (error) {
+                showLoginMessage('Network error. Please try again.', 'error');
+            }
+            
+            btn.disabled = false;
+            btn.textContent = 'Sign In';
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('projectflow_session');
+            currentUser = null;
+            sessionToken = null;
+            userId = null;
+            showLogin();
+        }
+
+        // Theme Management
+        function changeTheme() {
+            const themeSelect = document.getElementById('themeSelect');
+            const selectedTheme = themeSelect.value;
+            
+            // Apply theme to document
+            if (selectedTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+            
+            // Save theme preference
+            localStorage.setItem('projectflow_theme', selectedTheme);
+            
+            // Show visual feedback
+            const themeName = selectedTheme === 'dark' ? 'Dark Mode' : 'Ocean Breeze';
+            showMessage(`Switched to ${themeName} theme! 🎨`, 'success');
+            
+            console.log('Theme changed to:', selectedTheme);
+        }
+
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('projectflow_theme') || 'light';
+            const themeSelect = document.getElementById('themeSelect');
+            
+            if (themeSelect) {
+                themeSelect.value = savedTheme;
+                
+                // Apply the saved theme
+                if (savedTheme === 'dark') {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                } else {
+                    document.documentElement.removeAttribute('data-theme');
+                }
+            }
+        }
+
+        function showLogin() {
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('appScreen').style.display = 'none';
+            document.getElementById('loginMessage').innerHTML = '';
+        }
+
+        function showApp() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('appScreen').style.display = 'block';
+            
+            // Initialize theme for app screen
+            initializeTheme();
+            
+            // Update user info
+            if (currentUser) {
+                const initials = currentUser.email.charAt(0).toUpperCase();
+                document.getElementById('userAvatar').textContent = initials;
+                document.getElementById('userName').textContent = currentUser.email.split('@')[0];
+                document.getElementById('userEmail').textContent = currentUser.email;
+            }
+            
+            // Load initial data
+            loadTodos();
+            updateDashboardStats();
+            initializeCharts();
+        }
+
+        function showLoginMessage(message, type) {
+            const msgDiv = document.getElementById('loginMessage');
+            msgDiv.innerHTML = `<div class="${type}">${message}</div>`;
+        }
+
+        async function loadTodos() {
+            if (!sessionToken) return;
+            
+            try {
+                const headers = {
+                    'Authorization': `Bearer ${sessionToken}`,
+                    'apikey': SUPABASE_KEY,
+                    'Content-Type': 'application/json'
+                };
+                
+                // Load todos
+                const todosResponse = await fetch(`${SUPABASE_URL}/rest/v1/todos?user_id=eq.${userId}&order=updated_at.desc`, { headers });
+                
+                if (todosResponse.ok) {
+                    const todos = await todosResponse.json();
+                    console.log('Loaded', todos.length, 'todos');
+                    
+                    // Load notes for all todos
+                    const notesResponse = await fetch(`${SUPABASE_URL}/rest/v1/todonotes?select=*&order=created_at.asc`, { headers });
+                    
+                    let allNotes = [];
+                    if (notesResponse.ok) {
+                        allNotes = await notesResponse.json();
+                        console.log('Loaded', allNotes.length, 'notes');
+                    }
+                    
+                    // Attach notes to todos
+                    todos.forEach(todo => {
+                        todo.notes = allNotes.filter(note => note.todo_id === todo.id);
+                    });
+                    
+                    allTodos = todos;
+                    displayTodos(allTodos);
+                    updateDashboardStats();
+                } else if (todosResponse.status === 401) {
+                    console.error('Unauthorized - redirecting to login');
+                    localStorage.removeItem('projectflow_session');
+                    showLogin();
+                } else {
+                    console.error('Failed to load todos');
+                    document.getElementById('todosList').innerHTML = '<div class="error">Failed to load tasks</div>';
+                }
+            } catch (error) {
+                console.error('Network error:', error);
+                document.getElementById('todosList').innerHTML = '<div class="error">Network error</div>';
+            }
+        }
+
+        function displayTodos(todos) {
+            const container = document.getElementById('todosList');
+            
+            if (todos.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>🎯 No tasks yet</h3>
+                        <p>Add your first task to get started with productivity tracking!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = todos.map(todo => createTodoHTML(todo)).join('');
+        }
+
+        function createTodoHTML(todo) {
+            const createdAt = new Date(todo.created_at).toLocaleDateString();
+            const updatedAt = todo.updated_at ? new Date(todo.updated_at).toLocaleDateString() : createdAt;
+            
+            // Build notes HTML using the original structure
+            let notesHTML = '';
+            if (todo.notes && todo.notes.length > 0) {
+                notesHTML = todo.notes.map(note => {
+                    const noteDate = new Date(note.created_at).toLocaleDateString();
+                    return `<div class="note-item">📝 ${escapeHtml(note.note)} <span class="note-date">(${noteDate})</span></div>`;
+                }).join('');
+            }
+            
+            return `
+                <div class="todo-item ${todo.completed ? 'completed' : ''}">
+                    <div class="todo-main">
+                        <div class="todo-checkbox ${todo.completed ? 'completed' : ''}" 
+                             onclick="toggleTodo('${todo.id}', ${!todo.completed})">
+                            ${todo.completed ? '✓' : ''}
+                        </div>
+                        <div class="todo-content">
+                            <div class="todo-title ${todo.completed ? 'completed' : ''}">${escapeHtml(todo.title)}</div>
+                            <div class="todo-meta">Created: ${createdAt} | Updated: ${updatedAt} | Notes: ${todo.notes ? todo.notes.length : 0}</div>
+                        </div>
+                    </div>
+                    <div class="todo-notes">
+                        ${notesHTML}
+                        <div class="add-note-section">
+                            <input type="text" class="note-input" placeholder="Add a note..." 
+                                   onkeypress="if(event.key==='Enter') addNote('${todo.id}', this.nextElementSibling)">
+                            <button class="add-note-btn" onclick="addNote('${todo.id}', this)">
+                                Add Note
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function handleAddTodo() {
+            const input = document.getElementById('todoInput');
+            const task = input.value.trim();
+            
+            if (!task) return;
+
+            const addBtn = document.getElementById('addBtn');
+            addBtn.disabled = true;
+            addBtn.textContent = 'Adding...';
+
+            try {
+                const headers = {
+                    "apikey": SUPABASE_KEY,
+                    "Authorization": `Bearer ${sessionToken}`,
+                    "Content-Type": "application/json",
+                    "Prefer": "return=minimal"
+                };
+                
+                const payload = {
+                    title: task,
+                    user_id: userId,
+                    completed: false
+                };
+                
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/todos`, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.status === 201) {
+                    console.log('Todo added successfully');
+                    input.value = '';
+                    showMessage('Todo added successfully!', 'success');
+                    loadTodos();
+                } else {
+                    const errorText = await response.text();
+                    throw new Error(`Failed to add todo: ${response.status} - ${errorText}`);
+                }
+            } catch (error) {
+                console.error('Add todo error:', error);
+                showMessage(`Failed to add todo: ${error.message}`, 'error');
+            } finally {
+                addBtn.disabled = false;
+                addBtn.textContent = 'Add Task';
+            }
+        }
+
+        async function toggleTodo(todoId, completed) {
+            if (!sessionToken) return;
+            
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/todos?id=eq.${todoId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Bearer ${sessionToken}`,
+                        'apikey': SUPABASE_KEY,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ completed })
+                });
+                
+                if (response.ok) {
+                    showMessage(completed ? 'Task completed!' : 'Task reopened!', 'success');
+                    loadTodos();
+                } else {
+                    showMessage('Failed to update task', 'error');
+                }
+            } catch (error) {
+                showMessage('Network error', 'error');
+            }
+        }
+
+        async function addNote(todoId, buttonElement) {
+            const noteInput = buttonElement.parentElement.querySelector('.note-input');
+            const noteText = noteInput.value.trim();
+            
+            if (!noteText) return;
+
+            buttonElement.disabled = true;
+            buttonElement.textContent = 'Adding...';
+
+            try {
+                const headers = {
+                    "apikey": SUPABASE_KEY,
+                    "Authorization": `Bearer ${sessionToken}`,
+                    "Content-Type": "application/json",
+                    "Prefer": "return=minimal"
+                };
+                
+                const payload = {
+                    todo_id: todoId,
+                    note: noteText
+                };
+                
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/todonotes`, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.status === 201) {
+                    console.log('Note added successfully');
+                    noteInput.value = '';
+                    showMessage('Note added successfully!', 'success');
+                    loadTodos(); // Reload to show the new note
+                } else {
+                    const errorText = await response.text();
+                    throw new Error(`Failed to add note: ${response.status} - ${errorText}`);
+                }
+            } catch (error) {
+                console.error('Add note error:', error);
+                showMessage(`Failed to add note: ${error.message}`, 'error');
+            } finally {
+                buttonElement.disabled = false;
+                buttonElement.textContent = 'Add Note';
+            }
+        }
+
+        function updateDashboardStats() {
+            const total = allTodos.length;
+            const completed = allTodos.filter(todo => todo.completed).length;
+            const pending = total - completed;
+            const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
+            
+            document.getElementById('totalTasks').textContent = total;
+            document.getElementById('completedTasks').textContent = completed;
+            document.getElementById('pendingTasks').textContent = pending;
+            document.getElementById('completionRate').textContent = rate + '%';
+            
+            updateCharts(completed, pending);
+        }
+
+        function initializeCharts() {
+            // Progress Chart
+            const progressCtx = document.getElementById('progressChart').getContext('2d');
+            progressChart = new Chart(progressCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Completed', 'Pending'],
+                    datasets: [{
+                        data: [0, 0],
+                        backgroundColor: [
+                            'rgba(255, 255, 255, 0.8)',
+                            'rgba(255, 255, 255, 0.3)'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'white'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Distribution Chart
+            const distributionCtx = document.getElementById('distributionChart').getContext('2d');
+            distributionChart = new Chart(distributionCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['This Week'],
+                    datasets: [{
+                        label: 'Completed',
+                        data: [0],
+                        backgroundColor: 'rgba(255, 255, 255, 0.8)'
+                    }, {
+                        label: 'Pending',
+                        data: [0],
+                        backgroundColor: 'rgba(255, 255, 255, 0.3)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'white'
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: 'white'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: 'white'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateCharts(completed, pending) {
+            if (progressChart) {
+                progressChart.data.datasets[0].data = [completed, pending];
+                progressChart.update();
+            }
+            
+            if (distributionChart) {
+                distributionChart.data.datasets[0].data = [completed];
+                distributionChart.data.datasets[1].data = [pending];
+                distributionChart.update();
+            }
+        }
+
+        function handleExport() {
+            if (!allTodos.length) {
+                showMessage('No tasks to export', 'error');
+                return;
+            }
+            
+            // Show export options
+            showExportOptions();
+        }
+
+        function showExportOptions() {
+            // Create modal for export options
+            const modal = document.createElement('div');
+            modal.className = 'export-modal';
+            modal.innerHTML = `
+                <div class="export-modal-content">
+                    <h3>Export Options</h3>
+                    <div class="export-buttons">
+                        <button onclick="exportAsPDF()" class="export-option-btn">
+                            📄 Export as PDF
+                        </button>
+                        <button onclick="exportAsText()" class="export-option-btn">
+                            📝 Export as Text
+                        </button>
+                        <button onclick="exportAsHTML()" class="export-option-btn">
+                            🌐 Export as HTML
+                        </button>
+                        <button onclick="closeExportModal()" class="export-cancel-btn">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Add modal styles
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 10000;
+            `;
+            
+            const content = modal.querySelector('.export-modal-content');
+            content.style.cssText = `
+                background: white;
+                padding: 2rem;
+                border-radius: 15px;
+                min-width: 300px;
+                max-width: 90vw;
+                text-align: center;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            `;
+            
+            const buttons = modal.querySelectorAll('.export-option-btn');
+            buttons.forEach(btn => {
+                btn.style.cssText = `
+                    display: block;
+                    width: 100%;
+                    padding: 15px;
+                    margin: 10px 0;
+                    border: none;
+                    border-radius: 10px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    font-size: 16px;
+                    cursor: pointer;
+                    transition: transform 0.2s ease;
+                `;
+                
+                btn.addEventListener('mouseover', () => btn.style.transform = 'scale(1.02)');
+                btn.addEventListener('mouseout', () => btn.style.transform = 'scale(1)');
+            });
+            
+            const cancelBtn = modal.querySelector('.export-cancel-btn');
+            cancelBtn.style.cssText = `
+                display: block;
+                width: 100%;
+                padding: 15px;
+                margin: 20px 0 0 0;
+                border: 2px solid #ddd;
+                border-radius: 10px;
+                background: white;
+                color: #666;
+                font-size: 16px;
+                cursor: pointer;
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Close modal when clicking outside
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeExportModal();
+                }
+            });
+        }
+
+        function closeExportModal() {
+            const modal = document.querySelector('.export-modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        function exportAsPDF() {
+            closeExportModal();
+            
+            // Create a hidden div with content formatted for PDF
+            const printContent = document.createElement('div');
+            printContent.style.cssText = `
+                position: absolute;
+                left: -9999px;
+                top: 0;
+                width: 210mm;
+                font-family: Arial, sans-serif;
+                font-size: 12pt;
+                line-height: 1.4;
+                color: #333;
+                background: white;
+                padding: 20mm;
+            `;
+            
+            // Generate PDF content
+            let content = `
+                <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #667eea; padding-bottom: 15px;">
+                    <h1 style="color: #667eea; margin: 0; font-size: 24pt;">ProjectFlow Export</h1>
+                    <p style="margin: 5px 0; color: #666;">User: ${currentUser.email}</p>
+                    <p style="margin: 5px 0; color: #666;">Generated: ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</p>
+                </div>
+            `;
+            
+            const activeTodos = allTodos.filter(todo => !todo.completed);
+            const completedTodos = allTodos.filter(todo => todo.completed);
+            
+            // Summary section
+            content += `
+                <div style="margin-bottom: 30px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                    <h2 style="color: #667eea; margin-top: 0;">Summary</h2>
+                    <p><strong>Total Tasks:</strong> ${allTodos.length}</p>
+                    <p><strong>Active Tasks:</strong> ${activeTodos.length}</p>
+                    <p><strong>Completed Tasks:</strong> ${completedTodos.length}</p>
+                    <p><strong>Completion Rate:</strong> ${allTodos.length > 0 ? Math.round((completedTodos.length / allTodos.length) * 100) : 0}%</p>
+                </div>
+            `;
+            
+            if (activeTodos.length > 0) {
+                content += `
+                    <div style="margin-bottom: 30px;">
+                        <h2 style="color: #667eea; border-bottom: 1px solid #ddd; padding-bottom: 10px;">Active Tasks (${activeTodos.length})</h2>
+                `;
+                activeTodos.forEach((todo, index) => {
+                    content += `
+                        <div style="margin-bottom: 20px; padding: 15px; border-left: 4px solid #667eea; background: #f8f9fa;">
+                            <h3 style="margin: 0 0 10px 0; color: #333;">${index + 1}. ${escapeHtml(todo.title)}</h3>
+                            <p style="margin: 5px 0; color: #666; font-size: 10pt;">Created: ${new Date(todo.created_at).toLocaleDateString()}</p>
+                    `;
+                    if (todo.notes && todo.notes.length > 0) {
+                        content += `<div style="margin-top: 10px;"><strong>Notes:</strong></div>`;
+                        todo.notes.forEach(note => {
+                            content += `<div style="margin: 5px 0 0 20px; font-size: 10pt;">• ${escapeHtml(note.note)} <em>(${new Date(note.created_at).toLocaleDateString()})</em></div>`;
+                        });
+                    }
+                    content += `</div>`;
+                });
+                content += `</div>`;
+            }
+            
+            if (completedTodos.length > 0) {
+                content += `
+                    <div style="margin-bottom: 30px;">
+                        <h2 style="color: #28a745; border-bottom: 1px solid #ddd; padding-bottom: 10px;">Completed Tasks (${completedTodos.length})</h2>
+                `;
+                completedTodos.forEach((todo, index) => {
+                    content += `
+                        <div style="margin-bottom: 20px; padding: 15px; border-left: 4px solid #28a745; background: #f8f9fa;">
+                            <h3 style="margin: 0 0 10px 0; color: #333; text-decoration: line-through;">${index + 1}. ${escapeHtml(todo.title)}</h3>
+                            <p style="margin: 5px 0; color: #666; font-size: 10pt;">Created: ${new Date(todo.created_at).toLocaleDateString()}</p>
+                    `;
+                    if (todo.notes && todo.notes.length > 0) {
+                        content += `<div style="margin-top: 10px;"><strong>Notes:</strong></div>`;
+                        todo.notes.forEach(note => {
+                            content += `<div style="margin: 5px 0 0 20px; font-size: 10pt;">• ${escapeHtml(note.note)} <em>(${new Date(note.created_at).toLocaleDateString()})</em></div>`;
+                        });
+                    }
+                    content += `</div>`;
+                });
+                content += `</div>`;
+            }
+            
+            printContent.innerHTML = content;
+            document.body.appendChild(printContent);
+            
+            // Create a new window for printing (works on mobile)
+            const printWindow = window.open('', '_blank', 'width=800,height=600');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>ProjectFlow Export</title>
+                    <style>
+                        @media print {
+                            @page { margin: 1cm; }
+                            body { margin: 0; }
+                        }
+                        body { font-family: Arial, sans-serif; font-size: 12pt; line-height: 1.4; }
+                    </style>
+                </head>
+                <body>
+                    ${content}
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            
+            // Trigger print dialog
+            setTimeout(() => {
+                printWindow.print();
+                setTimeout(() => {
+                    printWindow.close();
+                    document.body.removeChild(printContent);
+                }, 1000);
+            }, 500);
+            
+            showMessage('PDF export opened in new window', 'success');
+        }
+
+        function exportAsText() {
+            closeExportModal();
+            
+            // Generate text content
+            let content = `ProjectFlow Export\n`;
+            content += `User: ${currentUser.email}\n`;
+            content += `Generated: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}\n\n`;
+            
+            const activeTodos = allTodos.filter(todo => !todo.completed);
+            const completedTodos = allTodos.filter(todo => todo.completed);
+            
+            if (activeTodos.length > 0) {
+                content += `ACTIVE TASKS (${activeTodos.length})\n`;
+                content += '='.repeat(20) + '\n';
+                activeTodos.forEach((todo, index) => {
+                    content += `${index + 1}. ${todo.title}\n`;
+                    content += `   Created: ${new Date(todo.created_at).toLocaleDateString()}\n`;
+                    if (todo.notes && todo.notes.length > 0) {
+                        content += `   Notes:\n`;
+                        todo.notes.forEach(note => {
+                            content += `   - ${note.note} (${new Date(note.created_at).toLocaleDateString()})\n`;
+                        });
+                    }
+                    content += '\n';
+                });
+            }
+            
+            if (completedTodos.length > 0) {
+                content += `COMPLETED TASKS (${completedTodos.length})\n`;
+                content += '='.repeat(20) + '\n';
+                completedTodos.forEach((todo, index) => {
+                    content += `${index + 1}. ${todo.title}\n`;
+                    content += `   Created: ${new Date(todo.created_at).toLocaleDateString()}\n`;
+                    if (todo.notes && todo.notes.length > 0) {
+                        content += `   Notes:\n`;
+                        todo.notes.forEach(note => {
+                            content += `   - ${note.note} (${new Date(note.created_at).toLocaleDateString()})\n`;
+                        });
+                    }
+                    content += '\n';
+                });
+            }
+            
+            // Try to use native sharing if available (mobile)
+            if (navigator.share) {
+                navigator.share({
+                    title: 'ProjectFlow Export',
+                    text: content
+                }).catch(() => {
+                    downloadTextFile(content, 'projectflow-export.txt');
+                });
+            } else {
+                downloadTextFile(content, 'projectflow-export.txt');
+            }
+        }
+
+        function exportAsHTML() {
+            closeExportModal();
+            
+            const htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProjectFlow Export</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }
+        h1 { color: #667eea; text-align: center; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
+        h2 { color: #667eea; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
+        .meta { text-align: center; color: #666; margin-bottom: 30px; }
+        .summary { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 30px; }
+        .task { margin-bottom: 20px; padding: 15px; border-left: 4px solid #667eea; background: #f8f9fa; }
+        .completed { border-left-color: #28a745; }
+        .task-title { margin: 0 0 10px 0; }
+        .completed .task-title { text-decoration: line-through; }
+        .task-meta { color: #666; font-size: 0.9em; }
+        .notes { margin-top: 10px; }
+        .note { margin: 5px 0 0 20px; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+    <h1>ProjectFlow Export</h1>
+    <div class="meta">
+        <p>User: ${currentUser.email}</p>
+        <p>Generated: ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</p>
+    </div>
+    
+    <div class="summary">
+        <h2>Summary</h2>
+        <p><strong>Total Tasks:</strong> ${allTodos.length}</p>
+        <p><strong>Active Tasks:</strong> ${allTodos.filter(t => !t.completed).length}</p>
+        <p><strong>Completed Tasks:</strong> ${allTodos.filter(t => t.completed).length}</p>
+        <p><strong>Completion Rate:</strong> ${allTodos.length > 0 ? Math.round((allTodos.filter(t => t.completed).length / allTodos.length) * 100) : 0}%</p>
+    </div>
+    
+    ${allTodos.filter(t => !t.completed).length > 0 ? `
+    <h2>Active Tasks (${allTodos.filter(t => !t.completed).length})</h2>
+    ${allTodos.filter(t => !t.completed).map((todo, index) => `
+        <div class="task">
+            <h3 class="task-title">${index + 1}. ${escapeHtml(todo.title)}</h3>
+            <div class="task-meta">Created: ${new Date(todo.created_at).toLocaleDateString()}</div>
+            ${todo.notes && todo.notes.length > 0 ? `
+                <div class="notes">
+                    <strong>Notes:</strong>
+                    ${todo.notes.map(note => `<div class="note">• ${escapeHtml(note.note)} (${new Date(note.created_at).toLocaleDateString()})</div>`).join('')}
+                </div>
+            ` : ''}
+        </div>
+    `).join('')}
+    ` : ''}
+    
+    ${allTodos.filter(t => t.completed).length > 0 ? `
+    <h2>Completed Tasks (${allTodos.filter(t => t.completed).length})</h2>
+    ${allTodos.filter(t => t.completed).map((todo, index) => `
+        <div class="task completed">
+            <h3 class="task-title">${index + 1}. ${escapeHtml(todo.title)}</h3>
+            <div class="task-meta">Created: ${new Date(todo.created_at).toLocaleDateString()}</div>
+            ${todo.notes && todo.notes.length > 0 ? `
+                <div class="notes">
+                    <strong>Notes:</strong>
+                    ${todo.notes.map(note => `<div class="note">• ${escapeHtml(note.note)} (${new Date(note.created_at).toLocaleDateString()})</div>`).join('')}
+                </div>
+            ` : ''}
+        </div>
+    `).join('')}
+    ` : ''}
+</body>
+</html>
+            `;
+            
+            downloadTextFile(htmlContent, 'projectflow-export.html');
+        }
+
+        function downloadTextFile(content, filename) {
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showMessage(`${filename} downloaded successfully!`, 'success');
+        }
+
+        // Make export functions globally accessible
+        window.exportAsPDF = exportAsPDF;
+        window.exportAsText = exportAsText;
+        window.exportAsHTML = exportAsHTML;
+        window.closeExportModal = closeExportModal;
+
+        function showMessage(text, type) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.className = `show ${type}`;
+            
+            setTimeout(() => {
+                messageEl.classList.remove('show');
+            }, 3000);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
     </script>
 </body>
 </html>
