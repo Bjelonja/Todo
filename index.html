@@ -32,11 +32,17 @@
         }
 
         [data-theme="dark"] {
+            --primary-color: #4a5568;
+            --secondary-color: #2d3748;
+            --accent-color: #1a202c;
             --text-primary: #f7fafc;
             --text-secondary: #e2e8f0;
             --bg-primary: #1a202c;
             --bg-secondary: #2d3748;
             --border-color: #4a5568;
+            --shadow-light: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            --shadow-medium: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            --shadow-large: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
         }
 
         body {
@@ -63,14 +69,25 @@
         }
 
         .login-card {
-            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             padding: 3rem;
             border-radius: 24px;
             box-shadow: var(--shadow-large);
             width: 100%;
             max-width: 420px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        /* Light theme login card */
+        :root .login-card {
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        /* Dark theme login card */
+        [data-theme="dark"] .login-card {
+            background: rgba(26, 32, 44, 0.95);
         }
 
         .login-card h1 {
@@ -181,7 +198,6 @@
         /* Sidebar */
         .sidebar {
             width: 280px;
-            background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(20px);
             border-right: 1px solid rgba(255, 255, 255, 0.2);
             padding: 2rem 0;
@@ -190,6 +206,17 @@
             overflow-y: auto;
             transition: all 0.3s ease;
             z-index: 1000;
+        }
+
+        /* Light theme sidebar */
+        :root .sidebar {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Dark theme sidebar */
+        [data-theme="dark"] .sidebar {
+            background: rgba(26, 32, 44, 0.8);
+            border-right: 1px solid rgba(74, 85, 104, 0.3);
         }
 
         .sidebar-header {
@@ -313,6 +340,51 @@
             transform: translateY(-1px);
         }
 
+        /* Theme Selector */
+        .theme-selector {
+            margin-bottom: 1rem;
+        }
+
+        .theme-selector label {
+            display: block;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .theme-selector select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-selector select:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .theme-selector select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Dark theme adjustments for theme selector */
+        [data-theme="dark"] .theme-selector select {
+            background: rgba(74, 85, 104, 0.5);
+            border-color: rgba(74, 85, 104, 0.7);
+        }
+
+        [data-theme="dark"] .theme-selector select:hover {
+            background: rgba(74, 85, 104, 0.7);
+        }
+
         /* Main Content */
         .main-content {
             flex: 1;
@@ -321,6 +393,11 @@
             min-height: 100vh;
             max-width: calc(100vw - 280px);
             overflow-x: hidden;
+        }
+
+        /* Mobile Menu Button - Hidden by default */
+        .mobile-menu-btn {
+            display: none;
         }
 
         .page {
@@ -795,10 +872,55 @@
                 min-height: 44px;
                 min-width: 44px;
                 display: flex;
+                flex-direction: column;
                 align-items: center;
                 justify-content: center;
+                gap: 3px;
                 -webkit-tap-highlight-color: transparent;
                 touch-action: manipulation;
+                transition: all 0.3s ease;
+            }
+
+            .mobile-menu-btn:hover {
+                background: rgba(255, 255, 255, 0.3);
+            }
+
+            .mobile-menu-btn span {
+                display: block;
+                width: 20px;
+                height: 2px;
+                background: white;
+                border-radius: 1px;
+                transition: all 0.3s ease;
+            }
+
+            .mobile-menu-btn.active span:nth-child(1) {
+                transform: rotate(45deg) translate(5px, 5px);
+            }
+
+            .mobile-menu-btn.active span:nth-child(2) {
+                opacity: 0;
+            }
+
+            .mobile-menu-btn.active span:nth-child(3) {
+                transform: rotate(-45deg) translate(7px, -6px);
+            }
+
+            /* Mobile Backdrop */
+            .mobile-backdrop {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+                backdrop-filter: blur(2px);
+            }
+
+            .sidebar.open + .mobile-backdrop {
+                display: block;
             }
 
             .login-card {
@@ -1010,6 +1132,9 @@
     </style>
 </head>
 <body>
+    <!-- Mobile Backdrop -->
+    <div id="mobileBackdrop" class="mobile-backdrop"></div>
+    
     <!-- Login Screen -->
     <div id="loginScreen" class="login-screen">
         <div class="login-card">
@@ -1087,12 +1212,26 @@
                             <p id="userEmail">user@email.com</p>
                         </div>
                     </div>
+                    <div class="theme-selector">
+                        <label for="themeSelect">🎨 Theme:</label>
+                        <select id="themeSelect" onchange="changeTheme()">
+                            <option value="light">🌊 Ocean Breeze</option>
+                            <option value="dark">🌙 Dark Mode</option>
+                        </select>
+                    </div>
                     <button class="logout-btn" id="logoutBtn">Sign Out</button>
                 </div>
             </nav>
 
             <!-- Main Content -->
             <main class="main-content">
+                <!-- Mobile Menu Button -->
+                <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleMobileMenu()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                
                 <!-- Dashboard Page -->
                 <div id="dashboardPage" class="page active">
                     <div class="page-header">
@@ -1219,6 +1358,7 @@
 
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
+            initializeTheme();
             setupEventListeners();
             checkAuthState();
         });
@@ -1233,7 +1373,10 @@
             });
 
             // Mobile menu
-            document.getElementById('mobileMenuBtn').addEventListener('click', toggleMobileMenu);
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            if (mobileMenuBtn) {
+                mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+            }
             
             // Logout
             document.getElementById('logoutBtn').addEventListener('click', handleLogout);
@@ -1257,12 +1400,19 @@
                     !sidebar.contains(e.target) && 
                     !mobileMenuBtn.contains(e.target)) {
                     sidebar.classList.remove('open');
+                    mobileMenuBtn.classList.remove('active');
                 }
             });
         }
 
         function toggleMobileMenu() {
-            document.getElementById('sidebar').classList.toggle('open');
+            const sidebar = document.getElementById('sidebar');
+            const menuBtn = document.getElementById('mobileMenuBtn');
+            
+            if (sidebar && menuBtn) {
+                sidebar.classList.toggle('open');
+                menuBtn.classList.toggle('active');
+            }
         }
 
         function handleNavigation(e) {
@@ -1279,7 +1429,10 @@
             
             // Close mobile menu
             if (window.innerWidth <= 768) {
-                document.getElementById('sidebar').classList.remove('open');
+                const sidebar = document.getElementById('sidebar');
+                const menuBtn = document.getElementById('mobileMenuBtn');
+                sidebar.classList.remove('open');
+                if (menuBtn) menuBtn.classList.remove('active');
             }
 
             // Load page-specific data
@@ -1363,6 +1516,44 @@
             showLogin();
         }
 
+        // Theme Management
+        function changeTheme() {
+            const themeSelect = document.getElementById('themeSelect');
+            const selectedTheme = themeSelect.value;
+            
+            // Apply theme to document
+            if (selectedTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+            
+            // Save theme preference
+            localStorage.setItem('projectflow_theme', selectedTheme);
+            
+            // Show visual feedback
+            const themeName = selectedTheme === 'dark' ? 'Dark Mode' : 'Ocean Breeze';
+            showMessage(`Switched to ${themeName} theme! 🎨`, 'success');
+            
+            console.log('Theme changed to:', selectedTheme);
+        }
+
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('projectflow_theme') || 'light';
+            const themeSelect = document.getElementById('themeSelect');
+            
+            if (themeSelect) {
+                themeSelect.value = savedTheme;
+                
+                // Apply the saved theme
+                if (savedTheme === 'dark') {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                } else {
+                    document.documentElement.removeAttribute('data-theme');
+                }
+            }
+        }
+
         function showLogin() {
             document.getElementById('loginScreen').style.display = 'flex';
             document.getElementById('appScreen').style.display = 'none';
@@ -1372,6 +1563,9 @@
         function showApp() {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('appScreen').style.display = 'block';
+            
+            // Initialize theme for app screen
+            initializeTheme();
             
             // Update user info
             if (currentUser) {
