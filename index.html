@@ -879,15 +879,15 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="#" class="nav-link" data-page="tasks">
-                            <span class="nav-icon">✅</span>
-                            Tasks
-                        </a>
-                    </li>
-                    <li class="nav-item">
                         <a href="#" class="nav-link" data-page="projects">
                             <span class="nav-icon">📁</span>
                             Projects
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-page="tasks">
+                            <span class="nav-icon">✅</span>
+                            Tasks
                         </a>
                     </li>
                     <li class="nav-item">
@@ -1322,44 +1322,50 @@
 
         async function handleAddTodo() {
             const input = document.getElementById('todoInput');
-            const btn = document.getElementById('addBtn');
-            const title = input.value.trim();
+            const task = input.value.trim();
             
-            if (!title || !sessionToken) return;
-            
-            btn.disabled = true;
-            btn.textContent = 'Adding...';
-            
+            if (!task) return;
+
+            const addBtn = document.getElementById('addBtn');
+            addBtn.disabled = true;
+            addBtn.textContent = 'Adding...';
+
             try {
+                const headers = {
+                    "apikey": SUPABASE_KEY,
+                    "Authorization": `Bearer ${sessionToken}`,
+                    "Content-Type": "application/json",
+                    "Prefer": "return=minimal"
+                };
+                
+                const payload = {
+                    title: task,
+                    user_id: userId,
+                    completed: false
+                };
+                
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/todos`, {
                     method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${sessionToken}`,
-                        'apikey': SUPABASE_KEY,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=representation'
-                    },
-                    body: JSON.stringify({
-                        title: title,
-                        user_id: userId,
-                        completed: false,
-                        notes: []
-                    })
+                    headers: headers,
+                    body: JSON.stringify(payload)
                 });
-                
-                if (response.ok) {
+
+                if (response.status === 201) {
+                    console.log('Todo added successfully');
                     input.value = '';
-                    showMessage('Task added successfully!', 'success');
+                    showMessage('Todo added successfully!', 'success');
                     loadTodos();
                 } else {
-                    showMessage('Failed to add task', 'error');
+                    const errorText = await response.text();
+                    throw new Error(`Failed to add todo: ${response.status} - ${errorText}`);
                 }
             } catch (error) {
-                showMessage('Network error', 'error');
+                console.error('Add todo error:', error);
+                showMessage(`Failed to add todo: ${error.message}`, 'error');
+            } finally {
+                addBtn.disabled = false;
+                addBtn.textContent = 'Add Task';
             }
-            
-            btn.disabled = false;
-            btn.textContent = 'Add Task';
         }
 
         async function toggleTodo(todoId, completed) {
@@ -1538,7 +1544,236 @@
                 return;
             }
             
-            // Generate export content
+            // Show export options
+            showExportOptions();
+        }
+
+        function showExportOptions() {
+            // Create modal for export options
+            const modal = document.createElement('div');
+            modal.className = 'export-modal';
+            modal.innerHTML = `
+                <div class="export-modal-content">
+                    <h3>Export Options</h3>
+                    <div class="export-buttons">
+                        <button onclick="exportAsPDF()" class="export-option-btn">
+                            📄 Export as PDF
+                        </button>
+                        <button onclick="exportAsText()" class="export-option-btn">
+                            📝 Export as Text
+                        </button>
+                        <button onclick="exportAsHTML()" class="export-option-btn">
+                            🌐 Export as HTML
+                        </button>
+                        <button onclick="closeExportModal()" class="export-cancel-btn">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Add modal styles
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 10000;
+            `;
+            
+            const content = modal.querySelector('.export-modal-content');
+            content.style.cssText = `
+                background: white;
+                padding: 2rem;
+                border-radius: 15px;
+                min-width: 300px;
+                max-width: 90vw;
+                text-align: center;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            `;
+            
+            const buttons = modal.querySelectorAll('.export-option-btn');
+            buttons.forEach(btn => {
+                btn.style.cssText = `
+                    display: block;
+                    width: 100%;
+                    padding: 15px;
+                    margin: 10px 0;
+                    border: none;
+                    border-radius: 10px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    font-size: 16px;
+                    cursor: pointer;
+                    transition: transform 0.2s ease;
+                `;
+                
+                btn.addEventListener('mouseover', () => btn.style.transform = 'scale(1.02)');
+                btn.addEventListener('mouseout', () => btn.style.transform = 'scale(1)');
+            });
+            
+            const cancelBtn = modal.querySelector('.export-cancel-btn');
+            cancelBtn.style.cssText = `
+                display: block;
+                width: 100%;
+                padding: 15px;
+                margin: 20px 0 0 0;
+                border: 2px solid #ddd;
+                border-radius: 10px;
+                background: white;
+                color: #666;
+                font-size: 16px;
+                cursor: pointer;
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Close modal when clicking outside
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeExportModal();
+                }
+            });
+        }
+
+        function closeExportModal() {
+            const modal = document.querySelector('.export-modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        function exportAsPDF() {
+            closeExportModal();
+            
+            // Create a hidden div with content formatted for PDF
+            const printContent = document.createElement('div');
+            printContent.style.cssText = `
+                position: absolute;
+                left: -9999px;
+                top: 0;
+                width: 210mm;
+                font-family: Arial, sans-serif;
+                font-size: 12pt;
+                line-height: 1.4;
+                color: #333;
+                background: white;
+                padding: 20mm;
+            `;
+            
+            // Generate PDF content
+            let content = `
+                <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #667eea; padding-bottom: 15px;">
+                    <h1 style="color: #667eea; margin: 0; font-size: 24pt;">ProjectFlow Export</h1>
+                    <p style="margin: 5px 0; color: #666;">User: ${currentUser.email}</p>
+                    <p style="margin: 5px 0; color: #666;">Generated: ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</p>
+                </div>
+            `;
+            
+            const activeTodos = allTodos.filter(todo => !todo.completed);
+            const completedTodos = allTodos.filter(todo => todo.completed);
+            
+            // Summary section
+            content += `
+                <div style="margin-bottom: 30px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                    <h2 style="color: #667eea; margin-top: 0;">Summary</h2>
+                    <p><strong>Total Tasks:</strong> ${allTodos.length}</p>
+                    <p><strong>Active Tasks:</strong> ${activeTodos.length}</p>
+                    <p><strong>Completed Tasks:</strong> ${completedTodos.length}</p>
+                    <p><strong>Completion Rate:</strong> ${allTodos.length > 0 ? Math.round((completedTodos.length / allTodos.length) * 100) : 0}%</p>
+                </div>
+            `;
+            
+            if (activeTodos.length > 0) {
+                content += `
+                    <div style="margin-bottom: 30px;">
+                        <h2 style="color: #667eea; border-bottom: 1px solid #ddd; padding-bottom: 10px;">Active Tasks (${activeTodos.length})</h2>
+                `;
+                activeTodos.forEach((todo, index) => {
+                    content += `
+                        <div style="margin-bottom: 20px; padding: 15px; border-left: 4px solid #667eea; background: #f8f9fa;">
+                            <h3 style="margin: 0 0 10px 0; color: #333;">${index + 1}. ${escapeHtml(todo.title)}</h3>
+                            <p style="margin: 5px 0; color: #666; font-size: 10pt;">Created: ${new Date(todo.created_at).toLocaleDateString()}</p>
+                    `;
+                    if (todo.notes && todo.notes.length > 0) {
+                        content += `<div style="margin-top: 10px;"><strong>Notes:</strong></div>`;
+                        todo.notes.forEach(note => {
+                            content += `<div style="margin: 5px 0 0 20px; font-size: 10pt;">• ${escapeHtml(note.note)} <em>(${new Date(note.created_at).toLocaleDateString()})</em></div>`;
+                        });
+                    }
+                    content += `</div>`;
+                });
+                content += `</div>`;
+            }
+            
+            if (completedTodos.length > 0) {
+                content += `
+                    <div style="margin-bottom: 30px;">
+                        <h2 style="color: #28a745; border-bottom: 1px solid #ddd; padding-bottom: 10px;">Completed Tasks (${completedTodos.length})</h2>
+                `;
+                completedTodos.forEach((todo, index) => {
+                    content += `
+                        <div style="margin-bottom: 20px; padding: 15px; border-left: 4px solid #28a745; background: #f8f9fa;">
+                            <h3 style="margin: 0 0 10px 0; color: #333; text-decoration: line-through;">${index + 1}. ${escapeHtml(todo.title)}</h3>
+                            <p style="margin: 5px 0; color: #666; font-size: 10pt;">Created: ${new Date(todo.created_at).toLocaleDateString()}</p>
+                    `;
+                    if (todo.notes && todo.notes.length > 0) {
+                        content += `<div style="margin-top: 10px;"><strong>Notes:</strong></div>`;
+                        todo.notes.forEach(note => {
+                            content += `<div style="margin: 5px 0 0 20px; font-size: 10pt;">• ${escapeHtml(note.note)} <em>(${new Date(note.created_at).toLocaleDateString()})</em></div>`;
+                        });
+                    }
+                    content += `</div>`;
+                });
+                content += `</div>`;
+            }
+            
+            printContent.innerHTML = content;
+            document.body.appendChild(printContent);
+            
+            // Create a new window for printing (works on mobile)
+            const printWindow = window.open('', '_blank', 'width=800,height=600');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>ProjectFlow Export</title>
+                    <style>
+                        @media print {
+                            @page { margin: 1cm; }
+                            body { margin: 0; }
+                        }
+                        body { font-family: Arial, sans-serif; font-size: 12pt; line-height: 1.4; }
+                    </style>
+                </head>
+                <body>
+                    ${content}
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            
+            // Trigger print dialog
+            setTimeout(() => {
+                printWindow.print();
+                setTimeout(() => {
+                    printWindow.close();
+                    document.body.removeChild(printContent);
+                }, 1000);
+            }, 500);
+            
+            showMessage('PDF export opened in new window', 'success');
+        }
+
+        function exportAsText() {
+            closeExportModal();
+            
+            // Generate text content
             let content = `ProjectFlow Export\n`;
             content += `User: ${currentUser.email}\n`;
             content += `Generated: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}\n\n`;
@@ -1578,48 +1813,115 @@
                 });
             }
             
-            // Try to use native sharing if available
+            // Try to use native sharing if available (mobile)
             if (navigator.share) {
                 navigator.share({
                     title: 'ProjectFlow Export',
                     text: content
                 }).catch(() => {
-                    copyToClipboard(content);
+                    downloadTextFile(content, 'projectflow-export.txt');
                 });
             } else {
-                copyToClipboard(content);
+                downloadTextFile(content, 'projectflow-export.txt');
             }
         }
 
-        function copyToClipboard(text) {
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(text).then(() => {
-                    showMessage('Export copied to clipboard!', 'success');
-                }).catch(() => {
-                    fallbackCopy(text);
-                });
-            } else {
-                fallbackCopy(text);
-            }
+        function exportAsHTML() {
+            closeExportModal();
+            
+            const htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProjectFlow Export</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }
+        h1 { color: #667eea; text-align: center; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
+        h2 { color: #667eea; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
+        .meta { text-align: center; color: #666; margin-bottom: 30px; }
+        .summary { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 30px; }
+        .task { margin-bottom: 20px; padding: 15px; border-left: 4px solid #667eea; background: #f8f9fa; }
+        .completed { border-left-color: #28a745; }
+        .task-title { margin: 0 0 10px 0; }
+        .completed .task-title { text-decoration: line-through; }
+        .task-meta { color: #666; font-size: 0.9em; }
+        .notes { margin-top: 10px; }
+        .note { margin: 5px 0 0 20px; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+    <h1>ProjectFlow Export</h1>
+    <div class="meta">
+        <p>User: ${currentUser.email}</p>
+        <p>Generated: ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</p>
+    </div>
+    
+    <div class="summary">
+        <h2>Summary</h2>
+        <p><strong>Total Tasks:</strong> ${allTodos.length}</p>
+        <p><strong>Active Tasks:</strong> ${allTodos.filter(t => !t.completed).length}</p>
+        <p><strong>Completed Tasks:</strong> ${allTodos.filter(t => t.completed).length}</p>
+        <p><strong>Completion Rate:</strong> ${allTodos.length > 0 ? Math.round((allTodos.filter(t => t.completed).length / allTodos.length) * 100) : 0}%</p>
+    </div>
+    
+    ${allTodos.filter(t => !t.completed).length > 0 ? `
+    <h2>Active Tasks (${allTodos.filter(t => !t.completed).length})</h2>
+    ${allTodos.filter(t => !t.completed).map((todo, index) => `
+        <div class="task">
+            <h3 class="task-title">${index + 1}. ${escapeHtml(todo.title)}</h3>
+            <div class="task-meta">Created: ${new Date(todo.created_at).toLocaleDateString()}</div>
+            ${todo.notes && todo.notes.length > 0 ? `
+                <div class="notes">
+                    <strong>Notes:</strong>
+                    ${todo.notes.map(note => `<div class="note">• ${escapeHtml(note.note)} (${new Date(note.created_at).toLocaleDateString()})</div>`).join('')}
+                </div>
+            ` : ''}
+        </div>
+    `).join('')}
+    ` : ''}
+    
+    ${allTodos.filter(t => t.completed).length > 0 ? `
+    <h2>Completed Tasks (${allTodos.filter(t => t.completed).length})</h2>
+    ${allTodos.filter(t => t.completed).map((todo, index) => `
+        <div class="task completed">
+            <h3 class="task-title">${index + 1}. ${escapeHtml(todo.title)}</h3>
+            <div class="task-meta">Created: ${new Date(todo.created_at).toLocaleDateString()}</div>
+            ${todo.notes && todo.notes.length > 0 ? `
+                <div class="notes">
+                    <strong>Notes:</strong>
+                    ${todo.notes.map(note => `<div class="note">• ${escapeHtml(note.note)} (${new Date(note.created_at).toLocaleDateString()})</div>`).join('')}
+                </div>
+            ` : ''}
+        </div>
+    `).join('')}
+    ` : ''}
+</body>
+</html>
+            `;
+            
+            downloadTextFile(htmlContent, 'projectflow-export.html');
         }
 
-        function fallbackCopy(text) {
-            const textArea = document.createElement('textarea');
-            textArea.value = text;
-            textArea.style.position = 'fixed';
-            textArea.style.opacity = '0';
-            document.body.appendChild(textArea);
-            textArea.select();
-            try {
-                document.execCommand('copy');
-                showMessage('Export copied to clipboard!', 'success');
-            } catch (err) {
-                showMessage('Could not copy export. Please select and copy manually.', 'error');
-                textArea.style.opacity = '1';
-                textArea.style.position = 'static';
-            }
-            document.body.removeChild(textArea);
+        function downloadTextFile(content, filename) {
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showMessage(`${filename} downloaded successfully!`, 'success');
         }
+
+        // Make export functions globally accessible
+        window.exportAsPDF = exportAsPDF;
+        window.exportAsText = exportAsText;
+        window.exportAsHTML = exportAsHTML;
+        window.closeExportModal = closeExportModal;
 
         function showMessage(text, type) {
             const messageEl = document.getElementById('message');
