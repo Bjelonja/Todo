@@ -1462,6 +1462,42 @@
             font-size: 14px;
             font-weight: 500;
         }
+        
+        /* Highlight and animation styles */
+        .highlight-section {
+            background: rgba(0, 122, 255, 0.1) !important;
+            border: 2px solid rgba(0, 122, 255, 0.3) !important;
+            border-radius: 8px !important;
+            animation: highlightPulse 2s ease-in-out;
+        }
+
+        @keyframes highlightPulse {
+            0%, 100% { 
+                background: rgba(0, 122, 255, 0.1);
+                transform: scale(1);
+            }
+            50% { 
+                background: rgba(0, 122, 255, 0.2);
+                transform: scale(1.02);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .filter-indicator {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+        }
         </style>
 </head>
 <body>
@@ -1916,6 +1952,124 @@
                     
                     // Show success message
                     showMessage(`Showing ${type} tasks`, 'success');
+                    
+                    // Scroll to tasks container
+                    const tasksContainer = document.getElementById('tasksContainer') || 
+                                         document.querySelector('.tasks-container') ||
+                                         document.querySelector('#tasks-page');
+                    
+                    if (tasksContainer) {
+                        tasksContainer.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'start' 
+                        });
+                    }
+                }, 100);
+            }, 300);
+        }
+
+        function filterTasksByType(type) {
+            console.log('Filtering tasks by type:', type);
+            
+            // Get all task items
+            const taskItems = document.querySelectorAll('.task-item, .todo-item, li');
+            
+            taskItems.forEach(task => {
+                const isCompleted = task.classList.contains('completed') || 
+                                  task.querySelector('.completed') ||
+                                  task.style.textDecoration === 'line-through';
+                
+                const shouldShow = (type === 'completed' && isCompleted) || 
+                                 (type === 'pending' && !isCompleted);
+                
+                if (shouldShow) {
+                    task.style.display = 'block';
+                    task.style.opacity = '1';
+                } else {
+                    task.style.display = 'none';
+                    task.style.opacity = '0.3';
+                }
+            });
+            
+            // Add filter indicator
+            addFilterIndicator(type);
+        }
+
+        function highlightTaskSection(type) {
+            console.log('Highlighting task section for:', type);
+            
+            // Remove existing highlights
+            document.querySelectorAll('.highlight-section').forEach(el => {
+                el.classList.remove('highlight-section');
+            });
+            
+            // Find and highlight the relevant section
+            const sections = document.querySelectorAll('.task-section, .todo-section, .tasks-container');
+            sections.forEach(section => {
+                section.classList.add('highlight-section');
+            });
+            
+            // Auto-remove highlight after 3 seconds
+            setTimeout(() => {
+                document.querySelectorAll('.highlight-section').forEach(el => {
+                    el.classList.remove('highlight-section');
+                });
+            }, 3000);
+        }
+
+        function addFilterIndicator(type) {
+            // Remove existing filter indicator
+            const existingIndicator = document.querySelector('.filter-indicator');
+            if (existingIndicator) {
+                existingIndicator.remove();
+            }
+            
+            // Create new filter indicator
+            const indicator = document.createElement('div');
+            indicator.className = 'filter-indicator';
+            indicator.innerHTML = `
+                <span>📋 Showing: ${type.charAt(0).toUpperCase() + type.slice(1)} Tasks</span>
+                <button onclick="clearFilter()" style="margin-left: 10px; padding: 2px 8px; background: #007AFF; color: white; border: none; border-radius: 4px; cursor: pointer;">Show All</button>
+            `;
+            indicator.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: rgba(0, 122, 255, 0.9);
+                color: white;
+                padding: 10px 15px;
+                border-radius: 8px;
+                z-index: 1000;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+                animation: slideInRight 0.3s ease;
+            `;
+            
+            document.body.appendChild(indicator);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (indicator && indicator.parentNode) {
+                    indicator.remove();
+                }
+            }, 5000);
+        }
+
+        function clearFilter() {
+            // Show all tasks
+            const taskItems = document.querySelectorAll('.task-item, .todo-item, li');
+            taskItems.forEach(task => {
+                task.style.display = 'block';
+                task.style.opacity = '1';
+            });
+            
+            // Remove filter indicator
+            const indicator = document.querySelector('.filter-indicator');
+            if (indicator) {
+                indicator.remove();
+            }
+            
+            showMessage('Showing all tasks', 'info');
+        } tasks`, 'success');
                     
                     // Scroll to tasks container
                     const tasksContainer = document.getElementById('tasksContainer') || 
