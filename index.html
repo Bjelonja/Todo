@@ -1825,11 +1825,20 @@
             document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
             document.getElementById('tasksPage').classList.add('active');
             
-            // Load todos and then filter
-            setTimeout(() => {
-                filterTasksByType(filterType);
-                highlightTaskSection(filterType);
-            }, 100);
+            // Load todos first, then filter and scroll
+            loadTodos().then(() => {
+                // Wait a bit more for DOM to update
+                setTimeout(() => {
+                    filterTasksByType(filterType);
+                    highlightTaskSection(filterType);
+                }, 300);
+            }).catch(() => {
+                // If loadTodos fails, still try to filter
+                setTimeout(() => {
+                    filterTasksByType(filterType);
+                    highlightTaskSection(filterType);
+                }, 300);
+            });
         }
         
         // Filter tasks by type (completed or pending)
@@ -1855,10 +1864,43 @@
             });
             
             // Scroll to the appropriate section
-            const targetSection = filterType === 'completed' ? 'completed' : 'active';
-            const sectionElement = document.querySelector(`[data-section="${targetSection}"]`);
+            let sectionElement;
+            if (filterType === 'completed') {
+                // Target the completed tasks section header by ID
+                sectionElement = document.getElementById('completedTasksSection');
+            } else {
+                // Target the active tasks section header by ID
+                sectionElement = document.getElementById('activeTasksSection');
+            }
+            
             if (sectionElement) {
-                sectionElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                // Add some padding to the scroll position for better visibility
+                setTimeout(() => {
+                    const rect = sectionElement.getBoundingClientRect();
+                    const offset = 120; // 120px offset from top for better positioning
+                    window.scrollTo({
+                        top: window.pageYOffset + rect.top - offset,
+                        behavior: 'smooth'
+                    });
+                }, 200);
+            } else {
+                // Fallback to class-based targeting if IDs don't exist yet
+                if (filterType === 'completed') {
+                    sectionElement = document.querySelector('.completed-header');
+                } else {
+                    sectionElement = document.querySelector('.active-header');
+                }
+                
+                if (sectionElement) {
+                    setTimeout(() => {
+                        const rect = sectionElement.getBoundingClientRect();
+                        const offset = 120;
+                        window.scrollTo({
+                            top: window.pageYOffset + rect.top - offset,
+                            behavior: 'smooth'
+                        });
+                    }, 200);
+                }
             }
             
             // Auto-clear highlighting after 3 seconds
@@ -1876,28 +1918,35 @@
             const headers = document.querySelectorAll('.task-section-header');
             
             headers.forEach(header => {
-                const sectionType = header.textContent.toLowerCase().includes('completed') ? 'completed' : 'active';
-                
-                if ((filterType === 'completed' && sectionType === 'completed') || 
-                    (filterType === 'pending' && sectionType === 'active')) {
-                    header.style.background = 'linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%)';
-                    header.style.boxShadow = '0 0 20px rgba(102, 126, 234, 0.4)';
-                    header.style.transform = 'scale(1.02)';
-                } else {
-                    header.style.background = '';
-                    header.style.boxShadow = '';
-                    header.style.transform = '';
-                }
+                // Reset all headers first
+                header.style.background = '';
+                header.style.boxShadow = '';
+                header.style.transform = '';
             });
             
-            // Auto-remove highlighting after 2 seconds
-            setTimeout(() => {
-                headers.forEach(header => {
-                    header.style.background = '';
-                    header.style.boxShadow = '';
-                    header.style.transform = '';
-                });
-            }, 2000);
+            // Target the specific section by ID first, then fallback to class
+            let targetHeader;
+            if (filterType === 'completed') {
+                targetHeader = document.getElementById('completedTasksSection') || 
+                             document.querySelector('.completed-header');
+            } else {
+                targetHeader = document.getElementById('activeTasksSection') || 
+                             document.querySelector('.active-header');
+            }
+            
+            if (targetHeader) {
+                targetHeader.style.background = 'linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%)';
+                targetHeader.style.boxShadow = '0 0 20px rgba(102, 126, 234, 0.4)';
+                targetHeader.style.transform = 'scale(1.02)';
+                targetHeader.style.transition = 'all 0.3s ease';
+                
+                // Auto-remove highlighting after 2 seconds
+                setTimeout(() => {
+                    targetHeader.style.background = '';
+                    targetHeader.style.boxShadow = '';
+                    targetHeader.style.transform = '';
+                }, 2000);
+            }
         }
         
         // Enhanced message function for better feedback
@@ -2161,7 +2210,7 @@
             if (activeTodos.length > 0) {
                 html += `
                     <div class="task-section">
-                        <div class="task-section-header active-header">
+                        <div class="task-section-header active-header" id="activeTasksSection">
                             <h3>🔄 Active Tasks</h3>
                             <span class="task-count">${activeTodos.length}</span>
                         </div>
@@ -2176,7 +2225,7 @@
             if (completedTodos.length > 0) {
                 html += `
                     <div class="task-section">
-                        <div class="task-section-header completed-header">
+                        <div class="task-section-header completed-header" id="completedTasksSection">
                             <h3>✅ Completed Tasks</h3>
                             <span class="task-count">${completedTodos.length}</span>
                         </div>
