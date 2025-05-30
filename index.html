@@ -10,6 +10,10 @@
     <meta name="mobile-web-app-capable" content="yes">
     <title>ProjectFlow - Professional Task Management</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Add SheetJS for Excel file handling -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Add PapaParse for CSV handling -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -70,14 +74,15 @@
 
         .login-card {
             backdrop-filter: blur(20px);
-            padding: 3rem;
-            border-radius: 24px;
+            padding: 2rem;
+            border-radius: 16px;
             box-shadow: var(--shadow-large);
             width: 100%;
-            max-width: 420px;
+            max-width: 320px;
             border: 1px solid var(--border-color);
             color: var(--text-primary);
             transition: all 0.3s ease;
+            margin-bottom: 2rem;
         }
 
         /* Light theme login card */
@@ -92,9 +97,9 @@
 
         .login-card h1 {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             color: var(--primary-color);
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: 700;
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             -webkit-background-clip: text;
@@ -283,24 +288,25 @@
 
         .user-section {
             position: absolute;
-            bottom: 2rem;
-            left: 2rem;
-            right: 2rem;
-            padding: 1.5rem;
+            bottom: 3rem;
+            left: 1rem;
+            right: 1rem;
+            padding: 1rem;
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
+            border-radius: 8px;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 240px;
         }
 
         .user-info {
             display: flex;
             align-items: center;
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
         }
 
         .user-avatar {
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             display: flex;
@@ -308,7 +314,8 @@
             justify-content: center;
             color: white;
             font-weight: bold;
-            margin-right: 1rem;
+            margin-right: 0.75rem;
+            font-size: 0.8rem;
         }
 
         .user-details h3 {
@@ -327,12 +334,12 @@
             background: rgba(255, 255, 255, 0.1);
             color: white;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 0.75rem;
-            border-radius: 8px;
+            padding: 0.5rem;
+            border-radius: 6px;
             cursor: pointer;
             font-weight: 500;
             transition: all 0.3s ease;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
         }
 
         .logout-btn:hover {
@@ -342,25 +349,25 @@
 
         /* Theme Selector */
         .theme-selector {
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
         }
 
         .theme-selector label {
             display: block;
             color: rgba(255, 255, 255, 0.8);
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
+            font-size: 0.8rem;
+            margin-bottom: 0.3rem;
             font-weight: 500;
         }
 
         .theme-selector select {
             width: 100%;
-            padding: 0.5rem;
+            padding: 0.4rem;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
+            border-radius: 6px;
             background: rgba(255, 255, 255, 0.1);
             color: white;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             cursor: pointer;
             transition: all 0.3s ease;
         }
@@ -1378,6 +1385,261 @@
                 color: #666 !important;
             }
         }
+
+        /* Combinator5000 Specific Styles */
+        .combinator-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .file-upload-section {
+            margin-bottom: 2rem;
+        }
+
+        .file-upload-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .file-upload-label {
+            display: block;
+            color: white;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .file-upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .file-upload-area:hover {
+            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .file-upload-area.dragover {
+            border-color: white;
+            background: rgba(255, 255, 255, 0.15);
+            transform: scale(1.02);
+        }
+
+        .file-upload-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .file-upload-content {
+            pointer-events: none;
+        }
+
+        .file-upload-icon {
+            font-size: 3rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 1rem;
+        }
+
+        .file-upload-text {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .file-upload-hint {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+        }
+
+        .file-info {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            border-left: 4px solid white;
+        }
+
+        .file-info-name {
+            color: white;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .file-info-details {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .process-section {
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .process-btn {
+            background: linear-gradient(135deg, white, #f0f0f0);
+            color: var(--primary-color);
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            min-height: 50px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .process-btn:hover {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .process-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .progress-container {
+            display: none;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .progress-text {
+            color: white;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, white, #f0f0f0);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .log-section {
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .log-header {
+            color: white;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .log-content {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            color: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .log-entry {
+            margin-bottom: 0.5rem;
+        }
+
+        .log-timestamp {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.8rem;
+        }
+
+        .log-level-info {
+            color: #4CAF50;
+        }
+
+        .log-level-warning {
+            color: #FFC107;
+        }
+
+        .log-level-error {
+            color: #f44336;
+        }
+
+        /* Message Styles */
+        #message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            z-index: 10000;
+            max-width: 300px;
+            box-shadow: var(--shadow-large);
+            transform: translateX(400px);
+            transition: all 0.3s ease;
+        }
+
+        #message.show {
+            transform: translateX(0);
+        }
+
+        #message.success {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+        }
+
+        #message.error {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+        }
+
+        /* Allow text selection for inputs and content */
+        input, textarea, .log-content {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+
+        /* Mobile Responsive - Additional Combinator5000 styles */
+        @media (max-width: 768px) {
+            .combinator-container {
+                padding: 1rem;
+            }
+
+            .file-upload-area {
+                padding: 1.5rem;
+            }
+
+            .file-upload-icon {
+                font-size: 2rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1438,6 +1700,12 @@
                         <a href="#" class="nav-link" data-page="clients">
                             <span class="nav-icon">👥</span>
                             Clients
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-page="tools">
+                            <span class="nav-icon">🔧</span>
+                            Tools
                         </a>
                     </li>
                     <li class="nav-item">
@@ -1580,6 +1848,82 @@
                     </div>
                 </div>
 
+                <!-- Tools Page -->
+                <div id="toolsPage" class="page">
+                    <div class="page-header">
+                        <h1 class="page-title">Tools</h1>
+                        <p class="page-description">Productivity tools and utilities</p>
+                    </div>
+
+                    <!-- Combinator5000 Tool -->
+                    <div class="combinator-container">
+                        <h2 style="color: white; font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span>🔄</span>
+                            Combinator5000
+                        </h2>
+                        <p style="color: rgba(255, 255, 255, 0.8); margin-bottom: 2rem; line-height: 1.6;">
+                            Merge and update your master files with daily updates. Upload a master file and an update file to automatically combine and process the data.
+                        </p>
+
+                        <!-- File Upload Section -->
+                        <div class="file-upload-section">
+                            <div class="file-upload-group">
+                                <label class="file-upload-label">📋 Master File</label>
+                                <div class="file-upload-area" id="masterUploadArea">
+                                    <input type="file" class="file-upload-input" id="masterFileInput" accept=".csv,.tsv,.xlsx,.xls">
+                                    <div class="file-upload-content">
+                                        <div class="file-upload-icon">📁</div>
+                                        <div class="file-upload-text">Drop your master file here or click to browse</div>
+                                        <div class="file-upload-hint">Supports CSV, TSV, XLS, XLSX files</div>
+                                    </div>
+                                </div>
+                                <div id="masterFileInfo" class="file-info" style="display: none;">
+                                    <div class="file-info-name" id="masterFileName"></div>
+                                    <div class="file-info-details" id="masterFileDetails"></div>
+                                </div>
+                            </div>
+
+                            <div class="file-upload-group">
+                                <label class="file-upload-label">🔄 Update File</label>
+                                <div class="file-upload-area" id="updateUploadArea">
+                                    <input type="file" class="file-upload-input" id="updateFileInput" accept=".csv,.tsv,.xlsx,.xls">
+                                    <div class="file-upload-content">
+                                        <div class="file-upload-icon">📄</div>
+                                        <div class="file-upload-text">Drop your update file here or click to browse</div>
+                                        <div class="file-upload-hint">Supports CSV, TSV, XLS, XLSX files</div>
+                                    </div>
+                                </div>
+                                <div id="updateFileInfo" class="file-info" style="display: none;">
+                                    <div class="file-info-name" id="updateFileName"></div>
+                                    <div class="file-info-details" id="updateFileDetails"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Process Section -->
+                        <div class="process-section">
+                            <button class="process-btn" id="processBtn" disabled>
+                                <span>⚡</span>
+                                Process Files
+                            </button>
+                        </div>
+
+                        <!-- Progress Section -->
+                        <div class="progress-container" id="progressContainer">
+                            <div class="progress-text" id="progressText">Processing files...</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                        </div>
+
+                        <!-- Log Section -->
+                        <div class="log-section" id="logSection">
+                            <div class="log-header">📋 Processing Log</div>
+                            <div class="log-content" id="logContent"></div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- AI Assistant Page -->
                 <div id="aiPage" class="page">
                     <div class="page-header">
@@ -1610,6 +1954,11 @@
         let allTodos = [];
         let progressChart = null;
         let distributionChart = null;
+        
+        // Combinator5000 variables
+        let masterFileData = null;
+        let updateFileData = null;
+        let processLog = [];
 
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
@@ -1697,6 +2046,16 @@
                     }
                 }
             });
+
+            // Combinator5000 file upload handlers
+            setupFileUpload('masterFileInput', 'masterUploadArea', 'masterFileInfo', 'master');
+            setupFileUpload('updateFileInput', 'updateUploadArea', 'updateFileInfo', 'update');
+
+            // Combinator5000 process button
+            const processBtn = document.getElementById('processBtn');
+            if (processBtn) {
+                processBtn.addEventListener('click', handleProcessFiles);
+            }
         }
 
         function toggleMobileMenu() {
@@ -1816,7 +2175,7 @@
         // Navigation to Tasks with filtering
         function navigateToTasks(filterType) {
             // Show success message
-            showMessage(`Navigating to ${filterType} tasks...`, 'success');
+            // showMessage(`Navigating to ${filterType} tasks...`, 'success'); // Removed notification
             
             // Navigate to Tasks page
             document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
@@ -2922,6 +3281,547 @@
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
+        }
+
+        // =========================
+        // Combinator5000 Functions
+        // =========================
+
+        function setupFileUpload(inputId, areaId, infoId, type) {
+            const input = document.getElementById(inputId);
+            const area = document.getElementById(areaId);
+            const info = document.getElementById(infoId);
+
+            if (!input || !area || !info) return;
+
+            // File input change
+            input.addEventListener('change', (e) => handleFileSelect(e.target.files[0], type));
+
+            // Drag and drop
+            area.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                area.classList.add('dragover');
+            });
+
+            area.addEventListener('dragleave', () => {
+                area.classList.remove('dragover');
+            });
+
+            area.addEventListener('drop', (e) => {
+                e.preventDefault();
+                area.classList.remove('dragover');
+                const file = e.dataTransfer.files[0];
+                if (file) {
+                    handleFileSelect(file, type);
+                }
+            });
+        }
+
+        function handleFileSelect(file, type) {
+            if (!file) return;
+
+            // Validate file type
+            const validTypes = ['.csv', '.tsv', '.xlsx', '.xls'];
+            const fileExt = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+            
+            if (!validTypes.includes(fileExt)) {
+                showMessage('Please select a valid file (CSV, TSV, XLS, XLSX)', 'error');
+                return;
+            }
+
+            // Show file info
+            const infoId = type === 'master' ? 'masterFileInfo' : 'updateFileInfo';
+            const nameId = type === 'master' ? 'masterFileName' : 'updateFileName';
+            const detailsId = type === 'master' ? 'masterFileDetails' : 'updateFileDetails';
+
+            const infoEl = document.getElementById(infoId);
+            const nameEl = document.getElementById(nameId);
+            const detailsEl = document.getElementById(detailsId);
+
+            if (infoEl && nameEl && detailsEl) {
+                infoEl.style.display = 'block';
+                nameEl.textContent = file.name;
+                detailsEl.textContent = `${(file.size / 1024 / 1024).toFixed(2)} MB • ${fileExt.toUpperCase()} file`;
+            }
+
+            // Read file
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    if (type === 'master') {
+                        masterFileData = parseFile(e.target.result, fileExt, file.name);
+                        logMessage('info', `Master file loaded: ${file.name} (${masterFileData.length} rows)`);
+                    } else {
+                        updateFileData = parseFile(e.target.result, fileExt, file.name);
+                        logMessage('info', `Update file loaded: ${file.name} (${updateFileData.length} rows)`);
+                    }
+                    
+                    checkProcessReady();
+                } catch (error) {
+                    showMessage(`Error reading ${type} file: ${error.message}`, 'error');
+                    logMessage('error', `Failed to read ${type} file: ${error.message}`);
+                }
+            };
+
+            if (fileExt === '.csv' || fileExt === '.tsv') {
+                reader.readAsText(file);
+            } else {
+                reader.readAsArrayBuffer(file);
+            }
+        }
+
+        function parseFile(data, fileExt, fileName) {
+            if (fileExt === '.csv') {
+                const result = Papa.parse(data, { header: true, skipEmptyLines: true });
+                if (result.errors.length > 0) {
+                    logMessage('warning', `CSV parsing warnings in ${fileName}: ${result.errors.length} errors`);
+                }
+                return result.data;
+            } else if (fileExt === '.tsv') {
+                const result = Papa.parse(data, { header: true, skipEmptyLines: true, delimiter: '\t' });
+                if (result.errors.length > 0) {
+                    logMessage('warning', `TSV parsing warnings in ${fileName}: ${result.errors.length} errors`);
+                }
+                return result.data;
+            } else {
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                return XLSX.utils.sheet_to_json(worksheet);
+            }
+        }
+
+        function checkProcessReady() {
+            const processBtn = document.getElementById('processBtn');
+            if (processBtn && masterFileData && updateFileData) {
+                processBtn.disabled = false;
+                processBtn.innerHTML = '<span>⚡</span> Process Files';
+            }
+        }
+
+        async function handleProcessFiles() {
+            if (!masterFileData || !updateFileData) {
+                showMessage('Please upload both master and update files', 'error');
+                return;
+            }
+
+            const processBtn = document.getElementById('processBtn');
+            const progressContainer = document.getElementById('progressContainer');
+            const logSection = document.getElementById('logSection');
+
+            if (!processBtn || !progressContainer || !logSection) return;
+
+            // Clear previous logs
+            processLog = [];
+            const logContent = document.getElementById('logContent');
+            if (logContent) {
+                logContent.innerHTML = '';
+            }
+
+            try {
+                // Start processing
+                processBtn.disabled = true;
+                processBtn.innerHTML = '<span>⏳</span> Processing...';
+                progressContainer.style.display = 'block';
+                logSection.style.display = 'block';
+
+                const startTime = Date.now();
+                const startTimeStr = new Date().toISOString().slice(0, 19).replace('T', ' ');
+                logMessage('info', `Processing started at: ${startTimeStr}`);
+                logMessage('info', 'Starting file processing...');
+                updateProgress(10, 'Validating files...');
+
+                // Simulate processing steps
+                await delay(500);
+                updateProgress(30, 'Reading master file...');
+                
+                await delay(500);
+                updateProgress(50, 'Reading update file...');
+
+                await delay(500);
+                updateProgress(70, 'Processing updates...');
+
+                // Process the files
+                const result = await processFiles(masterFileData, updateFileData);
+
+                updateProgress(90, 'Generating output file...');
+                await delay(500);
+
+                // Generate and download the result
+                downloadExcelFile(result.data, result.filename);
+
+                // Generate and download the log file
+                const logFilename = result.filename.replace('.xlsx', '.log');
+                
+                // Add final processing time log
+                const endTime = Date.now();
+                const processingTime = ((endTime - startTime) / 1000).toFixed(2);
+                const endTimeStr = new Date().toISOString().slice(0, 19).replace('T', ' ');
+                logMessage('info', `Processing finished at: ${endTimeStr}`);
+                logMessage('info', `Total processing time: ${processingTime} seconds.`);
+                
+                downloadLogFile(logFilename);
+
+                updateProgress(100, 'Complete!');
+                logMessage('info', `Processing completed successfully. ${result.summary}`);
+                showMessage('Files processed successfully! Excel and log files downloaded.', 'success');
+
+            } catch (error) {
+                logMessage('error', `Processing failed: ${error.message}`);
+                showMessage(`Processing failed: ${error.message}`, 'error');
+            } finally {
+                setTimeout(() => {
+                    processBtn.disabled = false;
+                    processBtn.innerHTML = '<span>⚡</span> Process Files';
+                    progressContainer.style.display = 'none';
+                    updateProgress(0, '');
+                }, 2000);
+            }
+        }
+
+        async function processFiles(masterData, updateData) {
+            // Hardcoded column configuration (matching Python script)
+            const dateColumns = [
+                'eu_bti_expiry_date',
+                'uk_bti_expiry_date', 
+                'eu_bti_issue_date',
+                'uk_bti_issue_date',
+                'eu_eori_issue_date',
+                'uk_eori_issue_date'
+            ];
+            const defaultDateValue = "1900-01-01 01:00:00+01:00";
+            const currentTimestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+            logMessage('info', 'Processing master and update files...');
+
+            // Get key column (first column)
+            const masterKeys = Object.keys(masterData[0] || {});
+            const updateKeys = Object.keys(updateData[0] || {});
+            
+            if (masterKeys.length === 0 || updateKeys.length === 0) {
+                throw new Error('Files contain no columns');
+            }
+
+            const keyColumn = masterKeys[0];
+            logMessage('info', `Using first column '${keyColumn}' as key for updates`);
+
+            // Filter out rows with empty keys
+            const filteredMaster = masterData.filter(row => {
+                const keyValue = row[keyColumn];
+                return keyValue && keyValue.toString().trim() !== '' && keyValue.toString().toLowerCase() !== 'nan';
+            });
+            
+            const filteredUpdate = updateData.filter(row => {
+                const keyValue = row[keyColumn];
+                return keyValue && keyValue.toString().trim() !== '' && keyValue.toString().toLowerCase() !== 'nan';
+            });
+
+            logMessage('info', `Filtered master: ${filteredMaster.length} rows (${masterData.length - filteredMaster.length} skipped)`);
+            logMessage('info', `Filtered update: ${filteredUpdate.length} rows (${updateData.length - filteredUpdate.length} skipped)`);
+
+            // Create lookup maps
+            const masterMap = new Map();
+            filteredMaster.forEach((row, index) => {
+                const key = row[keyColumn].toString().trim();
+                masterMap.set(key, { ...row, _originalIndex: index });
+            });
+
+            const updateMap = new Map();
+            filteredUpdate.forEach(row => {
+                const key = row[keyColumn].toString().trim();
+                // Keep last occurrence if duplicates (like Python script)
+                updateMap.set(key, row);
+            });
+
+            logMessage('info', `Master map has ${masterMap.size} unique keys`);
+            logMessage('info', `Update map has ${updateMap.size} unique keys`);
+
+            // Count keys for detailed logging
+            const keysToUpdate = [];
+            const keysToAdd = [];
+            
+            for (const [key] of updateMap) {
+                if (masterMap.has(key)) {
+                    keysToUpdate.push(key);
+                } else {
+                    keysToAdd.push(key);
+                }
+            }
+
+            logMessage('info', `Found ${keysToUpdate.length} keys from Update file present in Master file (will be updated).`);
+            logMessage('info', `Found ${keysToAdd.length} new keys in Update file (will be added).`);
+            logMessage('info', `${'='.repeat(20)} Change Log Start ${'='.repeat(20)}`);
+
+            // Process updates - DON'T remove from masterMap to preserve all data
+            const addedRows = [];
+            const modifiedRows = [];
+            const unchangedRows = [];
+
+            let addedCount = 0;
+            let modifiedCount = 0;
+
+            // First, process all update rows
+            for (const [key, updateRow] of updateMap) {
+                if (masterMap.has(key)) {
+                    // Update existing row - merge update data into master row
+                    const masterRow = masterMap.get(key);
+                    const mergedRow = { ...masterRow };
+                    
+                    // Log the replacement in detail
+                    logMessage('info', `--- Replacing Key: ${key} ---`);
+                    logMessage('info', `  Original: ${JSON.stringify(masterRow)}`);
+                    logMessage('info', `  New Data: ${JSON.stringify(updateRow)}`);
+                    
+                    // Update with non-empty values from update row
+                    Object.keys(updateRow).forEach(col => {
+                        if (updateRow[col] !== undefined && updateRow[col] !== null && updateRow[col] !== '') {
+                            mergedRow[col] = updateRow[col];
+                        }
+                    });
+                    
+                    delete mergedRow._originalIndex; // Remove internal tracking
+                    modifiedRows.push(mergedRow);
+                    modifiedCount++;
+                    
+                    // Mark this key as processed but don't delete from masterMap yet
+                    masterMap.get(key)._processed = true;
+                } else {
+                    // Add new row
+                    logMessage('info', `--- Adding New Key: ${key} ---`);
+                    logMessage('info', `  New Data: ${JSON.stringify(updateRow)}`);
+                    
+                    addedRows.push({ ...updateRow });
+                    addedCount++;
+                }
+            }
+
+            logMessage('info', `${'='.repeat(20)} Change Log End ${'='.repeat(20)}`);
+
+            // Now add all unchanged rows from master (those not processed)
+            for (const [key, masterRow] of masterMap) {
+                if (!masterRow._processed) {
+                    const cleanRow = { ...masterRow };
+                    delete cleanRow._originalIndex;
+                    delete cleanRow._processed;
+                    unchangedRows.push(cleanRow);
+                }
+            }
+
+            logMessage('info', `${addedCount} rows added, ${modifiedCount} rows modified, ${unchangedRows.length} rows unchanged`);
+            logMessage('info', `Total output rows: ${addedCount + modifiedCount + unchangedRows.length} (vs ${filteredMaster.length} original master rows)`);
+            logMessage('info', `Sorted all sections by key column '${keyColumn}' for consistent output`);
+
+            // Get all column names from master data to ensure consistency
+            const allColumns = masterKeys.slice(); // Start with master columns
+            
+            // Add any new columns from update data
+            updateKeys.forEach(col => {
+                if (!allColumns.includes(col)) {
+                    allColumns.push(col);
+                }
+            });
+
+            // Ensure all rows have all columns
+            const normalizeRow = (row) => {
+                const normalizedRow = {};
+                allColumns.forEach(col => {
+                    normalizedRow[col] = row[col] || '';
+                });
+                return normalizedRow;
+            };
+
+            // Normalize all rows and sort them by key column
+            const normalizedAdded = addedRows.map(normalizeRow).sort((a, b) => {
+                const aKey = a[keyColumn] ? a[keyColumn].toString() : '';
+                const bKey = b[keyColumn] ? b[keyColumn].toString() : '';
+                return aKey.localeCompare(bKey);
+            });
+            
+            const normalizedModified = modifiedRows.map(normalizeRow).sort((a, b) => {
+                const aKey = a[keyColumn] ? a[keyColumn].toString() : '';
+                const bKey = b[keyColumn] ? b[keyColumn].toString() : '';
+                return aKey.localeCompare(bKey);
+            });
+            
+            const normalizedUnchanged = unchangedRows.map(normalizeRow).sort((a, b) => {
+                const aKey = a[keyColumn] ? a[keyColumn].toString() : '';
+                const bKey = b[keyColumn] ? b[keyColumn].toString() : '';
+                return aKey.localeCompare(bKey);
+            });
+
+            // Create section labels with all columns
+            const createLabelRow = (label) => {
+                const labelRow = {};
+                allColumns.forEach((col, index) => {
+                    labelRow[col] = index === 0 ? label : '';
+                });
+                return labelRow;
+            };
+
+            // Combine all data with section labels (matching Python script structure)
+            const finalData = [];
+
+            // Add sections in order: Added, Modified, Unchanged (like Python script)
+            if (normalizedAdded.length > 0) {
+                finalData.push(createLabelRow('Added rows'));
+                finalData.push(...normalizedAdded);
+            }
+
+            if (normalizedModified.length > 0) {
+                finalData.push(createLabelRow('Modified rows'));
+                finalData.push(...normalizedModified);
+            }
+
+            if (normalizedUnchanged.length > 0) {
+                finalData.push(createLabelRow('Unchanged rows'));
+                finalData.push(...normalizedUnchanged);
+            }
+
+            // Process 'updated' column and date columns for all data rows (excluding labels)
+            const allDataRows = [...normalizedAdded, ...normalizedModified, ...normalizedUnchanged];
+            
+            // Handle 'updated' column
+            const updatedColExists = allColumns.some(col => col.toLowerCase() === 'updated');
+            if (!updatedColExists) {
+                // Add 'updated' column at position 16 (like Python script) or at the end
+                const insertPos = Math.min(16, allColumns.length);
+                allColumns.splice(insertPos, 0, 'updated');
+                logMessage('info', `Added 'updated' column at position ${insertPos}`);
+            }
+
+            // Set updated timestamp for all non-label rows
+            finalData.forEach(row => {
+                if (row[keyColumn] !== 'Added rows' && row[keyColumn] !== 'Modified rows' && row[keyColumn] !== 'Unchanged rows') {
+                    const updatedCol = allColumns.find(col => col.toLowerCase() === 'updated') || 'updated';
+                    if (row[keyColumn] && row[keyColumn].toString().trim() !== '') {
+                        row[updatedCol] = currentTimestamp;
+                    }
+                }
+            });
+
+            // Fill empty date columns
+            let dateFieldsFilledCount = 0;
+            dateColumns.forEach(dateCol => {
+                const matchingCol = allColumns.find(col => col.toLowerCase() === dateCol.toLowerCase());
+                
+                if (matchingCol) {
+                    finalData.forEach(row => {
+                        // Skip label rows
+                        if (row[keyColumn] !== 'Added rows' && row[keyColumn] !== 'Modified rows' && row[keyColumn] !== 'Unchanged rows') {
+                            if (!row[matchingCol] || row[matchingCol].toString().trim() === '') {
+                                row[matchingCol] = defaultDateValue;
+                                dateFieldsFilledCount++;
+                            }
+                        }
+                    });
+                }
+            });
+
+            if (dateFieldsFilledCount > 0) {
+                logMessage('info', `Filled ${dateFieldsFilledCount} empty date fields with default value`);
+            }
+
+            // Ensure all final rows have all columns in correct order
+            const finalNormalizedData = finalData.map(row => {
+                const normalizedRow = {};
+                allColumns.forEach(col => {
+                    normalizedRow[col] = row[col] || '';
+                });
+                return normalizedRow;
+            });
+
+            const filename = `Combinator5000_output_${new Date().toISOString().slice(0, 10)}.xlsx`;
+            const summary = `${addedCount} rows added, ${modifiedCount} rows modified, ${unchangedRows.length} rows unchanged. Total: ${finalNormalizedData.length} rows (including ${normalizedAdded.length > 0 ? 1 : 0}${normalizedModified.length > 0 ? 1 : 0}${normalizedUnchanged.length > 0 ? 1 : 0} section labels)`;
+
+            logMessage('info', `Final output: ${finalNormalizedData.length} total rows`);
+            logMessage('info', `Attempting to save updated data to ${filename}...`);
+            logMessage('info', `Summary: ${addedCount} rows updated, ${addedCount} rows added.`);
+
+            return {
+                data: finalNormalizedData,
+                filename: filename,
+                summary: summary
+            };
+        }
+
+        function downloadExcelFile(data, filename) {
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Processed Data');
+            
+            // Generate and download
+            XLSX.writeFile(wb, filename);
+            
+            logMessage('info', `Successfully saved updated data to ${filename}.`);
+            logMessage('info', `File downloaded: ${filename}`);
+        }
+
+        function downloadLogFile(filename) {
+            // Format log content similar to Python script
+            const logContent = processLog.map(entry => {
+                return `${entry.timestamp} - ${entry.level.toUpperCase()} - ${entry.message}`;
+            }).join('\n');
+
+            // Add header and footer to match Python script format
+            const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
+            const logFileContent = `Combinator5000 Processing Log
+Generated: ${now}
+================================================================================
+
+${logContent}
+
+================================================================================
+Processing finished at: ${now}
+Log file generated by Combinator5000 Web Version
+`;
+
+            // Create and download the log file
+            const blob = new Blob([logFileContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            logMessage('info', `Log file downloaded: ${filename}`);
+        }
+
+        function updateProgress(percent, text) {
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            
+            if (progressFill) progressFill.style.width = percent + '%';
+            if (progressText) progressText.textContent = text;
+        }
+
+        function logMessage(level, message) {
+            const now = new Date();
+            const timestamp = now.toLocaleTimeString();
+            const isoTimestamp = now.toISOString().slice(0, 19).replace('T', ' ');
+            const logContent = document.getElementById('logContent');
+            
+            if (logContent) {
+                const entry = document.createElement('div');
+                entry.className = 'log-entry';
+                entry.innerHTML = `
+                    <span class="log-timestamp">[${timestamp}]</span>
+                    <span class="log-level-${level}">[${level.toUpperCase()}]</span>
+                    ${message}
+                `;
+                
+                logContent.appendChild(entry);
+                logContent.scrollTop = logContent.scrollHeight;
+            }
+            
+            // Store with ISO timestamp for log file
+            processLog.push({ timestamp: isoTimestamp, level, message });
+        }
+
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
         }
     </script>
 </body>
